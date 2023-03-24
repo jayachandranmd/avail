@@ -1,11 +1,20 @@
+import 'dart:io';
+
+import 'package:avail_itech_hackfest/screens/auth/sign_in.dart';
 import 'package:avail_itech_hackfest/screens/contributers/contributer_intro.dart';
+import 'package:avail_itech_hackfest/utils/auth_method.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../utils/colors.dart';
 import '../utils/constants.dart';
+import '../utils/image_picker.dart';
+import '../utils/storage_methods.dart';
 import '../utils/textstyle.dart';
 
 class UserProfile extends StatefulWidget {
@@ -16,15 +25,54 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  File? _image;
+  void selectImage() async {
+    final img = await pickImage(ImageSource.gallery);
+    cropImage(img!.path);
+  }
+
+  void cropImage(filePath) async {
+    File? croppedFile = (await ImageCropper().cropImage(
+      sourcePath: filePath,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ],
+      androidUiSettings: AndroidUiSettings(
+          toolbarTitle: 'Cropper',
+          toolbarColor: HexColor('#ED7524'),
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false),
+    ));
+    if (croppedFile != null) {
+      setState(() {
+        _image = croppedFile;
+      });
+    }
+
+    String photoUrl =
+        await StorageMethods().uploadImageToStroage('profilePics', _image!);
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({'photoUrl': photoUrl});
+    print(photoUrl);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      body: FutureBuilder(
-          future: FirebaseFirestore.instance
+      floatingActionButton: FloatingActionButton(onPressed: selectImage),
+      body: StreamBuilder(
+          stream: FirebaseFirestore.instance
               .collection('users')
               .doc(FirebaseAuth.instance.currentUser?.uid)
-              .get(),
+              .snapshots(),
           builder: (context, AsyncSnapshot snapshot) {
             if (!snapshot.hasData) {
               return const Center(
@@ -41,17 +89,23 @@ class _UserProfileState extends State<UserProfile> {
                       width: double.infinity,
                     ),
                     Positioned(
-                      top: 50,
-                      left: MediaQuery.of(context).size.width / 2 - 50,
-                      child: CachedNetworkImage(
-                        imageUrl:
-                            'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/profile.png?alt=media&token=6bb09fcb-2e37-42f6-90e5-a8651a2f1b71',
-                        height: 110,
-                      ),
-                    ),
+                        top: 120,
+                        left: 160,
+                        child: Container(
+                          height: 70,
+                          width: 70,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: CachedNetworkImageProvider(
+                                  snapshot.data['photoUrl'].toString(),
+                                ),
+                              )),
+                        )),
                     Positioned(
-                        top: 130,
-                        left: MediaQuery.of(context).size.width / 1.7,
+                        top: 160,
+                        left: 200,
                         child: Container(
                             alignment: Alignment.center,
                             height: 30,
@@ -59,10 +113,10 @@ class _UserProfileState extends State<UserProfile> {
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 color: yellow),
-                            child: Icon(
-                              Icons.camera_alt,
+                            child: IconButton(
+                              onPressed: selectImage,
+                              icon: Icon(Icons.camera_alt),
                               color: black,
-                              size: 20,
                             ))),
                   ],
                 ),
@@ -77,7 +131,10 @@ class _UserProfileState extends State<UserProfile> {
                 sBoxH30,
                 InkWell(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> ContributerIntro()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ContributerIntro()));
                   },
                   child: Container(
                     alignment: Alignment.center,
@@ -187,17 +244,26 @@ class _UserProfileState extends State<UserProfile> {
                 sBoxH5,
                 Padding(
                   padding: hpad12 + hpad4,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.logout,
-                        color: black,
-                        size: 25,
-                      ),
-                      sBoxW10,
-                      sBoxW5,
-                      Text('Logout', style: username),
-                    ],
+                  child: GestureDetector(
+                    onTap: () async {
+                      await AuthMethods().signOut();
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Login()));
+                    },
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.logout,
+                          color: black,
+                          size: 25,
+                        ),
+                        sBoxW10,
+                        sBoxW5,
+                        Text('Logout', style: username),
+                      ],
+                    ),
                   ),
                 ),
                 sBoxH5,
