@@ -26,7 +26,6 @@ class _MainHomePageState extends State<MainHomePage> {
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               height: 220,
@@ -135,186 +134,185 @@ class _MainHomePageState extends State<MainHomePage> {
             ),
             sBoxH10,
             StreamBuilder(
-                stream:
-                    FirebaseFirestore.instance.collection('feeds').snapshots(),
+                stream: FirebaseFirestore.instance
+                    .collection('feeds')
+                    .orderBy('timestamp', descending: true)
+                    .snapshots(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (!snapshot.hasData) {
                     return const Center(
                         child: CircularProgressIndicator(color: Colors.black));
                   }
                   // ignore: sized_box_for_whitespace
-                  return Container(
-                    height: MediaQuery.of(context).size.height * 1.85,
-                    child: ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: snapshot.data.docs.length,
-                        itemBuilder: (context, index) {
-                          return Card(
-                            margin: const EdgeInsets.only(
-                                bottom: 10, top: 10, left: 10, right: 10),
-                            shadowColor: Colors.grey,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 10, right: 20, top: 10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const CircleAvatar(
-                                        radius: 20,
-                                        backgroundImage:
-                                            CachedNetworkImageProvider(
-                                          'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/profile.png?alt=media&token=6bb09fcb-2e37-42f6-90e5-a8651a2f1b71',
+                  return ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data.docs.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          margin: const EdgeInsets.only(
+                              bottom: 10, top: 10, left: 10, right: 10),
+                          shadowColor: Colors.grey,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 10, right: 20, top: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const CircleAvatar(
+                                      radius: 20,
+                                      backgroundImage:
+                                          CachedNetworkImageProvider(
+                                        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/profile.png?alt=media&token=6bb09fcb-2e37-42f6-90e5-a8651a2f1b71',
+                                      ),
+                                    ),
+                                    sBoxW10,
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          snapshot.data.docs[index]['name'],
+                                          style: username,
                                         ),
-                                      ),
-                                      sBoxW10,
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            snapshot.data.docs[index]['name'],
-                                            style: username,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  sBoxH10,
-                                  RichText(
-                                    text: TextSpan(
-                                      text: snapshot.data.docs[index]['date'],
-                                      style: subtitle,
-                                      children: <TextSpan>[
-                                        TextSpan(text: ' • ', style: subtitle),
-                                        TextSpan(
-                                            text: snapshot.data.docs[index]
-                                                ['time'],
-                                            style: subtitle),
                                       ],
                                     ),
+                                  ],
+                                ),
+                                sBoxH10,
+                                RichText(
+                                  text: TextSpan(
+                                    text: snapshot.data.docs[index]['date'],
+                                    style: subtitle,
+                                    children: <TextSpan>[
+                                      TextSpan(text: ' • ', style: subtitle),
+                                      TextSpan(
+                                          text: snapshot.data.docs[index]
+                                              ['time'],
+                                          style: subtitle),
+                                    ],
                                   ),
-                                  sBoxH10,
-                                  Text(snapshot.data.docs[index]['content'],
-                                      style:
-                                          TextStyle(color: black, fontSize: 15),
-                                      textScaleFactor: 1.2),
-                                  sBoxH10,
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () async {
-                                          final Uri phoneNumber =
-                                              Uri.parse('tel:+917094523949');
-                                          print(
-                                              await canLaunchUrl(phoneNumber));
-                                          launchUrl(phoneNumber);
-                                        },
-                                        child: SizedBox(
-                                          width: 80,
-                                          child: ListTile(
-                                            title: CachedNetworkImage(
-                                              imageUrl:
-                                                  'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/call.png?alt=media&token=4587dff3-ffc4-4d31-9e12-2ee7e6d64e26',
-                                              height: 25,
-                                            ),
-                                            subtitle: Center(
-                                                child: Text(
-                                              'Call',
-                                              style: subtitle,
-                                            )),
+                                ),
+                                sBoxH10,
+                                Text(snapshot.data.docs[index]['content'],
+                                    style:
+                                        TextStyle(color: black, fontSize: 15),
+                                    textScaleFactor: 1.2),
+                                sBoxH10,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () async {
+                                        final Uri phoneNumber =
+                                            Uri.parse('tel:+917094523949');
+                                        print(await canLaunchUrl(phoneNumber));
+                                        launchUrl(phoneNumber);
+                                      },
+                                      child: SizedBox(
+                                        width: 80,
+                                        child: ListTile(
+                                          title: CachedNetworkImage(
+                                            imageUrl:
+                                                'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/call.png?alt=media&token=4587dff3-ffc4-4d31-9e12-2ee7e6d64e26',
+                                            height: 25,
                                           ),
+                                          subtitle: Center(
+                                              child: Text(
+                                            'Call',
+                                            style: subtitle,
+                                          )),
                                         ),
                                       ),
-                                      GestureDetector(
-                                        onTap: () async {
-                                          final Uri whatsapp = Uri.parse(
-                                              'whatsapp://send?phone=917094523949');
-                                          launchUrl(whatsapp);
-                                        },
-                                        child: SizedBox(
-                                          width: 80,
-                                          child: ListTile(
-                                            title: CachedNetworkImage(
-                                              imageUrl:
-                                                  'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/whatsapp.png?alt=media&token=fba174f0-dd72-41e4-9b06-d28281c41189',
-                                              height: 25,
-                                            ),
-                                            subtitle: Center(
-                                                child: Text(
-                                              'Chat',
-                                              style: subtitle,
-                                            )),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        final Uri whatsapp = Uri.parse(
+                                            'whatsapp://send?phone=917094523949');
+                                        launchUrl(whatsapp);
+                                      },
+                                      child: SizedBox(
+                                        width: 80,
+                                        child: ListTile(
+                                          title: CachedNetworkImage(
+                                            imageUrl:
+                                                'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/whatsapp.png?alt=media&token=fba174f0-dd72-41e4-9b06-d28281c41189',
+                                            height: 25,
                                           ),
+                                          subtitle: Center(
+                                              child: Text(
+                                            'Chat',
+                                            style: subtitle,
+                                          )),
                                         ),
                                       ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        commonShare(snapshot.data.docs[index]
+                                            ['content']);
+                                      },
+                                      child: SizedBox(
+                                        width: 80,
+                                        child: ListTile(
+                                          title: CachedNetworkImage(
+                                            imageUrl:
+                                                'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/share.png?alt=media&token=c4ee8389-1191-4d9e-af9e-0670d9edfb20',
+                                            height: 20,
+                                          ),
+                                          subtitle: Center(
+                                              child: Text(
+                                            'Share',
+                                            style: subtitle,
+                                          )),
+                                        ),
+                                      ),
+                                    ),
+                                    if (snapshot.data.docs[index]
+                                        ['volunteerStatus'])
                                       GestureDetector(
-                                        onTap: () async {
-                                          commonShare(snapshot.data.docs[index]
-                                              ['content']);
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      VolunteerForm()));
                                         },
                                         child: SizedBox(
                                           width: 80,
                                           child: ListTile(
                                             title: CachedNetworkImage(
                                               imageUrl:
-                                                  'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/share.png?alt=media&token=c4ee8389-1191-4d9e-af9e-0670d9edfb20',
+                                                  'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/apply.png?alt=media&token=e903fcac-28bc-42b0-8a39-2821f76fff41',
                                               height: 20,
                                             ),
                                             subtitle: Center(
                                                 child: Text(
-                                              'Share',
+                                              'Apply',
                                               style: subtitle,
                                             )),
                                           ),
                                         ),
-                                      ),
-                                      if (snapshot.data.docs[index]
-                                          ['volunteerStatus'])
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        VolunteerForm()));
-                                          },
-                                          child: SizedBox(
-                                            width: 80,
-                                            child: ListTile(
-                                              title: CachedNetworkImage(
-                                                imageUrl:
-                                                    'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/apply.png?alt=media&token=e903fcac-28bc-42b0-8a39-2821f76fff41',
-                                                height: 20,
-                                              ),
-                                              subtitle: Center(
-                                                  child: Text(
-                                                'Apply',
-                                                style: subtitle,
-                                              )),
-                                            ),
-                                          ),
-                                        )
-                                      else
-                                        Container(
-                                          height: 0,
-                                          width: 0,
-                                        )
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                      )
+                                    else
+                                      Container(
+                                        height: 0,
+                                        width: 0,
+                                      )
+                                  ],
+                                ),
+                              ],
                             ),
-                          );
-                        }),
-                  );
+                          ),
+                        );
+                      });
                 }),
           ],
         ),
