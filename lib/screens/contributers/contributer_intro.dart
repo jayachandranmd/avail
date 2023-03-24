@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import '../../utils/colors.dart';
-import '../home/mainhomepage.dart';
 import 'NGO_form.dart';
 
 class ContributerIntro extends StatefulWidget {
@@ -34,12 +33,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
           elevation: 2,
           leading: GestureDetector(
               onTap: () {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const MainHomePage(),
-                    ),
-                    (route) => false);
+                Navigator.of(context).pop();
               },
               child: Icon(
                 Icons.close,
