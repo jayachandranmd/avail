@@ -67,7 +67,7 @@ class _SignUpState extends State<SignUp> {
       body: Padding(
         padding: hpad12 + hpad12 + vpad12,
         child: SingleChildScrollView(
-          physics: const ScrollPhysics(),
+          physics: BouncingScrollPhysics(),
           child: Column(
             children: [
               sBoxH20,

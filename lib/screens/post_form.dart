@@ -404,13 +404,14 @@ class _PostFormState extends State<PostForm> {
   void postFeed() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final user = await _firestore.collection("users").doc(uid).get();
-    if (postDetail.toString() != null) {
+    if (postDetail.toString().isEmpty && postDetail.toString().trim() != " ") {
       await _firestore.collection("feeds").add({
         "content": postDetail.text.toString(),
         "name": user.data()!["firstName"],
         "volunteerStatus": postTag['Volunteering'],
         "date": date.toString(),
         "time": time.toString(),
+        "timestamp": FieldValue.serverTimestamp()
       });
       Fluttertoast.showToast(msg: "Post added");
     } else {
