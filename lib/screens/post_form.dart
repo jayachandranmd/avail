@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:avail_itech_hackfest/screens/home/mainhomepage.dart';
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:avail_itech_hackfest/utils/textstyle.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -17,7 +18,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../utils/colors.dart';
 
 class PostForm extends StatefulWidget {
-  const PostForm({Key? key}) : super(key: key);
+  PostForm({Key? key}) : super(key: key);
 
   @override
   State<PostForm> createState() => _PostFormState();
@@ -25,11 +26,13 @@ class PostForm extends StatefulWidget {
 
 class _PostFormState extends State<PostForm> {
   File? imageFile;
+  TextEditingController locationController = TextEditingController();
   final date = DateFormat('dd/MM/yyyy').format(DateTime.now());
   final time = DateFormat('hh:mm:ss').format(DateTime.now());
   final uid = FirebaseAuth.instance.currentUser?.uid;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController postDetail = TextEditingController();
+  final TextEditingController contact = TextEditingController();
   List<bool> values = [false, false, false];
   List tags = ['Clothes', 'Food', 'Volunteering'];
   List image = [
@@ -108,7 +111,16 @@ class _PostFormState extends State<PostForm> {
                   }
                   return Column(
                     children: [
-                      sBoxH20, sBoxH20,
+                      sBoxH20, sBoxH5,
+                      TextFormField(
+                        decoration: InputDecoration(
+                          hintText: "Locating...",
+                          suffixIcon: Icon(Icons.location_searching),
+                          suffixIconColor: yellow,
+                        ),
+                        controller: locationController,
+                      ),
+                      sBoxH20,
                       SizedBox(
                         //height: 400,
                         width: double.infinity,
@@ -118,28 +130,37 @@ class _PostFormState extends State<PostForm> {
                             side: BorderSide(
                               color: HexColor('#FEED5F'),
                             ),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(5),
                           ),
                           shadowColor: HexColor('#FEED5F'),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              //User name
-                              Padding(
-                                padding: vpad8,
-                                child: ListTile(
-                                  leading: const CircleAvatar(
-                                    maxRadius: 30,
-                                  ),
-                                  title: Text(
-                                    snapshot.data['firstName'],
-                                    style: textFieldTitle,
-                                  ),
-                                  subtitle: const Text(
-                                    'username',
-                                    style: TextStyle(fontSize: 18),
-                                  ),
+                              ListTile(
+                                leading: CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage: CachedNetworkImageProvider(
+                                      snapshot.data['photoUrl']),
                                 ),
+                                title: Text(
+                                  snapshot.data['firstName'],
+                                  style: textFieldTitle,
+                                ),
+                                subtitle: const Text(
+                                  'username',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                trailing: imageFile == null
+                                    ? SizedBox(
+                                        height: 0,
+                                        width: 0,
+                                      )
+                                    : Image.file(
+                                        File(imageFile!.path),
+                                        height: 60,
+                                        width: 60,
+                                        fit: BoxFit.fill,
+                                      ),
                               ),
                               //Content
                               Padding(
@@ -149,7 +170,7 @@ class _PostFormState extends State<PostForm> {
                                     //height: 200,
                                     child: TextFormField(
                                       maxLines: 30,
-                                      minLines: 7,
+                                      minLines: 2,
                                       textInputAction: TextInputAction.newline,
                                       keyboardType: TextInputType.multiline,
                                       decoration: InputDecoration(
@@ -183,20 +204,6 @@ class _PostFormState extends State<PostForm> {
                                   ),
                                 ),
                               ),
-                              sBoxH20, sBoxH30,
-                              imageFile == null
-                                  ? SizedBox(
-                                      height: 0,
-                                      width: 0,
-                                    )
-                                  : Image.file(
-                                      imageFile!,
-                                      height: 100,
-                                      width: 100,
-                                      fit: BoxFit.fill,
-                                    ),
-                              sBoxH10,
-                              //Add Image
                               GestureDetector(
                                 onTap: () async {
                                   Map<Permission, PermissionStatus> status =
@@ -224,12 +231,12 @@ class _PostFormState extends State<PostForm> {
                                       )),
                                 ),
                               ),
-                              sBoxH20,
+                              sBoxH10,
                             ],
                           ),
                         ),
                       ),
-                      sBoxH20, sBoxH20,
+                      sBoxH20,
                       Padding(
                         padding: hpad4,
                         child: Row(
@@ -296,6 +303,44 @@ class _PostFormState extends State<PostForm> {
                             );
                           },
                         ),
+                      ),
+                      sBoxH20,
+                      Padding(
+                        padding: hpad4,
+                        child: Row(
+                          children: [
+                            Text(
+                              'Contact',
+                              style: textFieldTitle,
+                            ),
+                            Text(
+                              '*',
+                              style: TextStyle(color: red, fontSize: 24),
+                            ),
+                          ],
+                        ),
+                      ),
+                      sBoxH10,
+                      TextFormField(
+                        decoration: InputDecoration(
+                          hintText: "Mobile",
+                        ),
+                        controller: contact,
+                        keyboardType: TextInputType.number,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return ("Contact number is required");
+                          }
+                          if (value.length < 10) {
+                            return ("Mobile Number must be of 10 digit");
+                          }
+                          return null;
+                        },
+                        cursorColor: HexColor('#AEAEAE'),
+                        onSaved: (value) {
+                          contact.text = value!;
+                        },
                       ),
                     ],
                   );
@@ -404,16 +449,24 @@ class _PostFormState extends State<PostForm> {
   void postFeed() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final user = await _firestore.collection("users").doc(uid).get();
-    if (postDetail.toString().isEmpty && postDetail.toString().trim() != " ") {
+    if (postDetail.toString().isNotEmpty &&
+        postDetail.toString().trim() != " " &&
+        contact.text.isNotEmpty) {
       await _firestore.collection("feeds").add({
         "content": postDetail.text.toString(),
+        "contact": contact.text.toString(),
         "name": user.data()!["firstName"],
+        "photoUrl": user.data()!["photoUrl"],
         "volunteerStatus": postTag['Volunteering'],
+        "clothes": postTag['Clothes'],
+        "food": postTag['Food'],
         "date": date.toString(),
         "time": time.toString(),
         "timestamp": FieldValue.serverTimestamp()
       });
       Fluttertoast.showToast(msg: "Post added");
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MainHomePage()));
     } else {
       Fluttertoast.showToast(msg: "Please fill the content");
     }
