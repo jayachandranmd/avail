@@ -1,5 +1,5 @@
 import 'package:avail_itech_hackfest/screens/auth/sign_in.dart';
-import 'package:avail_itech_hackfest/screens/home/homepage.dart';
+import 'package:avail_itech_hackfest/screens/contributers/contributer_intro.dart';
 import 'package:avail_itech_hackfest/utils/auth_method.dart';
 import 'package:avail_itech_hackfest/utils/colors.dart';
 import 'package:avail_itech_hackfest/widgets/textformfield.dart';
@@ -348,7 +348,8 @@ class _SignUpState extends State<SignUp> {
                             Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const HomePage(),
+                                  builder: (context) =>
+                                      const ContributerIntro(),
                                 ),
                                 (route) => false);
                           } else {
