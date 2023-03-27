@@ -1,3 +1,5 @@
+import 'package:avail_itech_hackfest/screens/home/feed.dart';
+import 'package:avail_itech_hackfest/screens/home/post_info.dart';
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
@@ -5,26 +7,35 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/colors.dart';
 import '../../utils/textstyle.dart';
-import '../contributers/volunteer_form.dart';
 
 class MainHomePage extends StatefulWidget {
-  const MainHomePage({Key? key}) : super(key: key);
-
   @override
-  State<MainHomePage> createState() => _MainHomePageState();
+  _MainHomePageState createState() => _MainHomePageState();
 }
 
-class _MainHomePageState extends State<MainHomePage> {
+class _MainHomePageState extends State<MainHomePage>
+    with SingleTickerProviderStateMixin {
+  TabController? _tabController;
+  @override
+  void initState() {
+    _tabController = new TabController(length: 3, vsync: this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _tabController!.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
+      child: Scaffold(
+        body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Container(
@@ -132,192 +143,34 @@ class _MainHomePageState extends State<MainHomePage> {
                     ),
                   ]),
             ),
-            sBoxH10,
-            StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection('feeds')
-                    .orderBy('timestamp', descending: true)
-                    .snapshots(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                        child: CircularProgressIndicator(color: Colors.black));
-                  }
-                  // ignore: sized_box_for_whitespace
-                  return ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: snapshot.data.docs.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          margin: const EdgeInsets.only(
-                              bottom: 10, top: 10, left: 10, right: 10),
-                          shadowColor: Colors.grey,
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 10, right: 20, top: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const CircleAvatar(
-                                      radius: 20,
-                                      backgroundImage:
-                                          CachedNetworkImageProvider(
-                                        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/profile.png?alt=media&token=6bb09fcb-2e37-42f6-90e5-a8651a2f1b71',
-                                      ),
-                                    ),
-                                    sBoxW10,
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          snapshot.data.docs[index]['name'],
-                                          style: username,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                sBoxH10,
-                                RichText(
-                                  text: TextSpan(
-                                    text: snapshot.data.docs[index]['date'],
-                                    style: subtitle,
-                                    children: <TextSpan>[
-                                      TextSpan(text: ' • ', style: subtitle),
-                                      TextSpan(
-                                          text: snapshot.data.docs[index]
-                                              ['time'],
-                                          style: subtitle),
-                                    ],
-                                  ),
-                                ),
-                                sBoxH10,
-                                Text(snapshot.data.docs[index]['content'],
-                                    style:
-                                        TextStyle(color: black, fontSize: 15),
-                                    textScaleFactor: 1.2),
-                                sBoxH10,
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () async {
-                                        final Uri phoneNumber =
-                                            Uri.parse('tel:+917094523949');
-                                        print(await canLaunchUrl(phoneNumber));
-                                        launchUrl(phoneNumber);
-                                      },
-                                      child: SizedBox(
-                                        width: 80,
-                                        child: ListTile(
-                                          title: CachedNetworkImage(
-                                            imageUrl:
-                                                'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/call.png?alt=media&token=4587dff3-ffc4-4d31-9e12-2ee7e6d64e26',
-                                            height: 25,
-                                          ),
-                                          subtitle: Center(
-                                              child: Text(
-                                            'Call',
-                                            style: subtitle,
-                                          )),
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        final Uri whatsapp = Uri.parse(
-                                            'whatsapp://send?phone=917094523949');
-                                        launchUrl(whatsapp);
-                                      },
-                                      child: SizedBox(
-                                        width: 80,
-                                        child: ListTile(
-                                          title: CachedNetworkImage(
-                                            imageUrl:
-                                                'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/whatsapp.png?alt=media&token=fba174f0-dd72-41e4-9b06-d28281c41189',
-                                            height: 25,
-                                          ),
-                                          subtitle: Center(
-                                              child: Text(
-                                            'Chat',
-                                            style: subtitle,
-                                          )),
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        commonShare(snapshot.data.docs[index]
-                                            ['content']);
-                                      },
-                                      child: SizedBox(
-                                        width: 80,
-                                        child: ListTile(
-                                          title: CachedNetworkImage(
-                                            imageUrl:
-                                                'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/share.png?alt=media&token=c4ee8389-1191-4d9e-af9e-0670d9edfb20',
-                                            height: 20,
-                                          ),
-                                          subtitle: Center(
-                                              child: Text(
-                                            'Share',
-                                            style: subtitle,
-                                          )),
-                                        ),
-                                      ),
-                                    ),
-                                    if (snapshot.data.docs[index]
-                                        ['volunteerStatus'])
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      VolunteerForm()));
-                                        },
-                                        child: SizedBox(
-                                          width: 80,
-                                          child: ListTile(
-                                            title: CachedNetworkImage(
-                                              imageUrl:
-                                                  'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/apply.png?alt=media&token=e903fcac-28bc-42b0-8a39-2821f76fff41',
-                                              height: 20,
-                                            ),
-                                            subtitle: Center(
-                                                child: Text(
-                                              'Apply',
-                                              style: subtitle,
-                                            )),
-                                          ),
-                                        ),
-                                      )
-                                    else
-                                      Container(
-                                        height: 0,
-                                        width: 0,
-                                      )
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      });
-                }),
+            Container(
+              decoration: BoxDecoration(color: black),
+              child: TabBar(
+                tabs: [
+                  Tab(text: "Food"),
+                  Tab(text: "Clothes"),
+                  Tab(text: "Volunteer"),
+                ],
+                controller: _tabController,
+                labelColor: yellow,
+                unselectedLabelColor: white,
+                indicatorSize: TabBarIndicatorSize.label,
+                indicator: UnderlineTabIndicator(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: yellow, width: 3)),
+              ),
+            ),
+            Expanded(
+              child: TabBarView(controller: _tabController, children: [
+                HomeFeed(postTag: 'food'),
+                HomeFeed(postTag: 'clothes'),
+                HomeFeed(postTag: 'volunteer'),
+              ]),
+            )
           ],
         ),
       ),
-    ));
+    );
   }
 
   void commonShare(String message) {

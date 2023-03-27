@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
               name: 'Homepage',
               selectedStyle: selectedText,
               baseStyle: textFieldTitle),
-          const MainHomePage()),
+          MainHomePage()),
       ScreenHiddenDrawer(
           ItemHiddenMenu(
               colorLineSelected: black,
@@ -76,10 +76,8 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(15.0),
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const PostForm()));
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => PostForm()));
                     },
                     child: CachedNetworkImage(
                       imageUrl:
