@@ -2,8 +2,11 @@ import 'package:avail_itech_hackfest/screens/contributers/individual_form.dart';
 import 'package:avail_itech_hackfest/screens/contributers/organization_form.dart';
 import 'package:avail_itech_hackfest/utils/textstyle.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
 import '../../utils/colors.dart';
 import 'NGO_form.dart';
@@ -22,7 +25,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
     'Individual': false,
     'Organization': false,
   };
-  var navigate;
+  var userType;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -47,25 +50,30 @@ class _ContributerIntroState extends State<ContributerIntro> {
                 width: 100,
                 child: ElevatedButton(
                   onPressed: () {
-                    navigate = contribute.keys
-                        .where((element) => contribute[element] == true);
-                    if (kDebugMode) {
-                      print(navigate.toString().trim());
-                    }
-                    if (navigate.toString() == '(NGO)') {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => NGOForm()));
-                    } else if (navigate.toString() == '(Individual)') {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => IndividualForm()));
-                    } else if (navigate.toString() == '(Organization)') {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => OrganizationForm()));
-                    }
+                    setState(() {
+                      userType = contribute.keys
+                          .where((element) => contribute[element] == true);
+                      if (kDebugMode) {
+                        print(userType.toString().trim());
+                      }
+                      if (userType.toString() == '(NGO)') {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => NGOForm()));
+                      } else if (userType.toString() == '(Individual)') {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => IndividualForm()));
+                      } else if (userType.toString() == '(Organization)') {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => OrganizationForm()));
+                      } else {
+                        Fluttertoast.showToast(msg: 'Select any one');
+                      }
+                      getUserType();
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                       elevation: 0,
@@ -315,5 +323,14 @@ class _ContributerIntroState extends State<ContributerIntro> {
         ),
       ),
     );
+  }
+
+  void getUserType() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    await _firestore
+        .collection("users")
+        .doc(uid)
+        .update({'userType': userType.toString()});
   }
 }

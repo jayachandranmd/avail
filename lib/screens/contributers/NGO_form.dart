@@ -2,7 +2,11 @@ import 'package:avail_itech_hackfest/screens/contributers/contributer_intro.dart
 import 'package:avail_itech_hackfest/screens/contributers/terms_conditions.dart';
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:avail_itech_hackfest/widgets/textformfield.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:csc_picker/csc_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
 import '../../utils/colors.dart';
 import '../../utils/textstyle.dart';
@@ -16,10 +20,14 @@ class NGOForm extends StatefulWidget {
 
 class _NGOFormState extends State<NGOForm> {
   final TextEditingController ngo_name = TextEditingController();
-  final TextEditingController ngo_state = TextEditingController();
-  final TextEditingController ngo_district = TextEditingController();
   final TextEditingController ngo_type = TextEditingController();
   final TextEditingController ngo_id = TextEditingController();
+  String stateValue = "";
+  String cityValue = "";
+
+  bool stateselected = false;
+  bool cityselected = false;
+
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -49,14 +57,7 @@ class _NGOFormState extends State<NGOForm> {
               child: SizedBox(
                 width: 100,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TermsAndCondtion(),
-                        ),
-                        (route) => false);
-                  },
+                  onPressed: getNgoInfo,
                   style: ElevatedButton.styleFrom(
                       elevation: 0,
                       backgroundColor: HexColor('#FEED5F'),
@@ -69,7 +70,7 @@ class _NGOFormState extends State<NGOForm> {
                           color: black)),
                 ),
               ),
-            )
+            ),
           ],
         ),
         body: SingleChildScrollView(
@@ -104,10 +105,11 @@ class _NGOFormState extends State<NGOForm> {
                       ngo_name.text = value!;
                     },
                   ),
+                  sBoxH10,
                   Row(
                     children: [
                       Text(
-                        'State',
+                        'Unique NGO ID',
                         style: textFieldTitle,
                       ),
                       Text(
@@ -118,42 +120,19 @@ class _NGOFormState extends State<NGOForm> {
                   ),
                   sBoxH10,
                   FormsField(
-                    textEditingController: ngo_state,
-                    hintText: "State",
+                    textEditingController: ngo_type,
+                    hintText: "NGO ID",
                     validate: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter the state';
+                        return 'Please enter some number';
                       }
                     },
+                    keyboard: TextInputType.phone,
                     save: (value) {
-                      ngo_state.text = value!;
+                      ngo_id.text = value!;
                     },
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        'State',
-                        style: textFieldTitle,
-                      ),
-                      Text(
-                        '*',
-                        style: TextStyle(color: red, fontSize: 24),
-                      ),
-                    ],
                   ),
                   sBoxH10,
-                  FormsField(
-                    textEditingController: ngo_district,
-                    hintText: "District",
-                    validate: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                    },
-                    save: (value) {
-                      ngo_district.text = value!;
-                    },
-                  ),
                   Row(
                     children: [
                       Text(
@@ -168,21 +147,23 @@ class _NGOFormState extends State<NGOForm> {
                   ),
                   sBoxH10,
                   FormsField(
-                    textEditingController: ngo_type,
-                    hintText: "District",
+                    textEditingController: ngo_id,
+                    hintText: "NGO Type",
                     validate: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
+                        return 'Please enter some number';
                       }
                     },
+                    keyboard: TextInputType.name,
                     save: (value) {
                       ngo_type.text = value!;
                     },
                   ),
+                  sBoxH10,
                   Row(
                     children: [
                       Text(
-                        'Unique ID',
+                        'NGO Location',
                         style: textFieldTitle,
                       ),
                       Text(
@@ -192,17 +173,30 @@ class _NGOFormState extends State<NGOForm> {
                     ],
                   ),
                   sBoxH10,
-                  FormsField(
-                    textEditingController: ngo_id,
-                    hintText: "ID",
-                    validate: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter some number';
-                      }
+                  CSCPicker(
+                    defaultCountry: CscCountry.India,
+                    disableCountry: true,
+
+                    ///placeholders for dropdown search field
+                    countrySearchPlaceholder: "Country",
+                    stateSearchPlaceholder: "State",
+                    citySearchPlaceholder: "City",
+
+                    ///labels for dropdown
+                    stateDropdownLabel: "NGO State",
+                    cityDropdownLabel: "NGO City",
+                    onCountryChanged: (value) {},
+                    onStateChanged: (value) {
+                      setState(() {
+                        stateValue = value.toString();
+                        stateselected = true;
+                      });
                     },
-                    keyboard: TextInputType.phone,
-                    save: (value) {
-                      ngo_id.text = value!;
+                    onCityChanged: (value) {
+                      setState(() {
+                        cityValue = value.toString();
+                        cityselected = true;
+                      });
                     },
                   ),
                 ],
@@ -212,5 +206,31 @@ class _NGOFormState extends State<NGOForm> {
         ),
       ),
     );
+  }
+
+  void getNgoInfo() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    if (stateselected &&
+        cityselected &&
+        ngo_name.text.isNotEmpty &&
+        ngo_id.text.isNotEmpty &&
+        ngo_type.text.isNotEmpty) {
+      await _firestore.collection("users").doc(uid).update({
+        'ngoName': ngo_name.text,
+        'ngoId': ngo_id.text,
+        'ngoType': ngo_type.text,
+        'ngoState': stateValue.toString(),
+        'ngoCity': cityValue.toString()
+        //continue from here
+      });
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TermsAndCondtion(),
+          ));
+    } else {
+      Fluttertoast.showToast(msg: 'All fields are mandatory');
+    }
   }
 }

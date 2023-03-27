@@ -1,5 +1,5 @@
 import 'package:avail_itech_hackfest/screens/contributers/NGO_form.dart';
-import 'package:avail_itech_hackfest/screens/contributers/verfication_progress.dart';
+import 'package:avail_itech_hackfest/screens/contributers/volunteer_completion.dart';
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -49,7 +49,7 @@ class _TermsAndCondtionState extends State<TermsAndCondtion> {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const VerificationProcess(),
+                            builder: (context) => const VolunteerCompletion(),
                           ),
                           (route) => false);
                     }
