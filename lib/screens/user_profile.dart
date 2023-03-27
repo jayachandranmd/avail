@@ -26,7 +26,7 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   File? _image;
-  void selectImage() async {
+  selectImage() async {
     final img = await pickImage(ImageSource.gallery);
     cropImage(img!.path);
   }
@@ -81,46 +81,39 @@ class _UserProfileState extends State<UserProfile> {
             }
             return Column(
               children: [
+                Image.asset(
+                  'assets/images/shape.png',
+                  width: double.infinity,
+                ),
+                sBoxH10,
+                Container(
+                  height: 70,
+                  width: 70,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: CachedNetworkImageProvider(
+                          snapshot.data['photoUrl'].toString(),
+                        ),
+                      )),
+                ),
                 Stack(
-                  clipBehavior: Clip.none,
                   children: [
-                    Image.asset(
-                      'assets/images/shape.png',
-                      width: double.infinity,
+                    Positioned(
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 30,
+                        width: 30,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: yellow),
+                        child: InkWell(
+                            onTap: selectImage, child: Icon(Icons.camera_alt)),
+                      ),
                     ),
-                    Positioned(
-                        top: 120,
-                        left: 160,
-                        child: Container(
-                          height: 70,
-                          width: 70,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: CachedNetworkImageProvider(
-                                  snapshot.data['photoUrl'].toString(),
-                                ),
-                              )),
-                        )),
-                    Positioned(
-                        top: 160,
-                        left: 200,
-                        child: Container(
-                            alignment: Alignment.center,
-                            height: 30,
-                            width: 30,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: yellow),
-                            child: IconButton(
-                              onPressed: selectImage,
-                              icon: Icon(Icons.camera_alt),
-                              color: black,
-                            ))),
                   ],
                 ),
-                sBoxH60,
                 sBoxH20,
                 Center(
                   child: Text(
