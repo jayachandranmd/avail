@@ -73,16 +73,29 @@ class _PostInfoState extends State<PostInfo> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   sBoxH20,
-                  ListTile(
-                    leading: CircleAvatar(
-                      radius: 25,
-                      backgroundImage:
-                          CachedNetworkImageProvider(snapshot.data['photoUrl']),
-                    ),
-                    title: Text(
-                      snapshot.data['name'],
-                      style: username,
-                    ),
+                  StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(snapshot.data['uid'])
+                        .snapshots(),
+                    builder: (BuildContext context, AsyncSnapshot snapshot2) {
+                      if (!snapshot2.hasData) {
+                        return const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.black));
+                      }
+                      return ListTile(
+                        leading: CircleAvatar(
+                          radius: 25,
+                          backgroundImage: CachedNetworkImageProvider(
+                              snapshot2.data['photoUrl']),
+                        ),
+                        title: Text(
+                          snapshot.data['name'],
+                          style: username,
+                        ),
+                      );
+                    },
                   ),
                   sBoxH10,
                   Padding(
