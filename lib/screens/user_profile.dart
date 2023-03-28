@@ -148,7 +148,7 @@ class _UserProfileState extends State<UserProfile> {
                           height: 25,
                         ),
                         sBoxW10,
-                        const Text('NGO',
+                        Text(snapshot.data['userType'],
                             style: TextStyle(
                               fontSize: 13,
                             )),
@@ -167,26 +167,7 @@ class _UserProfileState extends State<UserProfile> {
                 //   ),
                 // ),
                 sBoxH20,
-                Divider(
-                  color: lightgray,
-                  thickness: 1,
-                ),
-                sBoxH5,
-                Padding(
-                  padding: hpad12 + hpad4,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.mode_edit_outlined,
-                        color: black,
-                        size: 25,
-                      ),
-                      sBoxW10,
-                      sBoxW5,
-                      Text('Edit', style: username),
-                    ],
-                  ),
-                ),
+
                 sBoxH5,
                 Divider(
                   color: lightgray,

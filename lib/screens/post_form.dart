@@ -27,6 +27,8 @@ class PostForm extends StatefulWidget {
 }
 
 class _PostFormState extends State<PostForm> {
+  List<bool> values = [true, false, false];
+
   File? imageFile;
   TextEditingController locationController = TextEditingController();
   final date = DateFormat('dd/MM/yyyy').format(DateTime.now());
@@ -36,8 +38,9 @@ class _PostFormState extends State<PostForm> {
   final TextEditingController postDetail = TextEditingController();
   final TextEditingController contact = TextEditingController();
   final TextEditingController volunteersNeeded = TextEditingController();
-  List<bool> values = [false, false, false];
-  List tags = ['Clothes', 'Food', 'Volunteering'];
+  final GlobalKey<FormState> key = GlobalKey<FormState>();
+
+  List tags = ['clothes', 'food', 'volunteer'];
   List image = [
     'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/clothes_Tag.png?alt=media&token=09e3f3d0-012c-4fb8-92e7-5a739f56fcea',
     'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/clothes_Tag.png?alt=media&token=09e3f3d0-012c-4fb8-92e7-5a739f56fcea',
@@ -49,6 +52,7 @@ class _PostFormState extends State<PostForm> {
     'volunteer': false,
   };
   var updated;
+  var selected = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -99,287 +103,299 @@ class _PostFormState extends State<PostForm> {
           ],
         ),
         body: SingleChildScrollView(
-          child: Padding(
-            padding: vpad8 + hpad8,
-            child: FutureBuilder(
-                future: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(FirebaseAuth.instance.currentUser?.uid)
-                    .get(),
-                builder: (context, AsyncSnapshot snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  return Column(
-                    children: [
-                      sBoxH20, sBoxH5,
-                      TextFormField(
-                        decoration: InputDecoration(
-                          hintText: "Locating...",
-                          suffixIcon: Icon(Icons.location_searching),
-                          suffixIconColor: yellow,
-                        ),
-                        controller: locationController,
-                      ),
-                      sBoxH20,
-                      SizedBox(
-                        //height: 400,
-                        width: double.infinity,
-                        child: Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: HexColor('#FEED5F'),
-                            ),
-                            borderRadius: BorderRadius.circular(5),
+          child: Form(
+            key: key,
+            child: Padding(
+              padding: vpad8 + hpad8,
+              child: FutureBuilder(
+                  future: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(FirebaseAuth.instance.currentUser?.uid)
+                      .get(),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    return Column(
+                      children: [
+                        sBoxH20, sBoxH5,
+                        TextFormField(
+                          decoration: InputDecoration(
+                            hintText: "Locating...",
+                            suffixIcon: Icon(Icons.location_searching),
+                            suffixIconColor: yellow,
                           ),
-                          shadowColor: HexColor('#FEED5F'),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              sBoxH10, sBoxH5,
-                              ListTile(
-                                leading: CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: CachedNetworkImageProvider(
-                                      snapshot.data['photoUrl']),
-                                ),
-                                title: Text(
-                                  snapshot.data['firstName'],
-                                  style: textFieldTitle,
-                                ),
-                                trailing: imageFile == null
-                                    ? SizedBox(
-                                        height: 0,
-                                        width: 0,
-                                      )
-                                    : Image.file(
-                                        File(imageFile!.path),
-                                        height: 60,
-                                        width: 60,
-                                        fit: BoxFit.fill,
-                                      ),
+                          controller: locationController,
+                        ),
+                        sBoxH20,
+                        SizedBox(
+                          //height: 400,
+                          width: double.infinity,
+                          child: Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: HexColor('#FEED5F'),
                               ),
-                              //Content
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: SingleChildScrollView(
-                                  child: SizedBox(
-                                    //height: 200,
-                                    child: TextFormField(
-                                      maxLines: 30,
-                                      minLines: 2,
-                                      textInputAction: TextInputAction.newline,
-                                      keyboardType: TextInputType.multiline,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                          borderRadius:
-                                              BorderRadius.circular(30.0),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            shadowColor: HexColor('#FEED5F'),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                sBoxH10, sBoxH5,
+                                ListTile(
+                                  leading: CircleAvatar(
+                                    radius: 30,
+                                    backgroundImage: CachedNetworkImageProvider(
+                                        snapshot.data['photoUrl']),
+                                  ),
+                                  title: Text(
+                                    snapshot.data['firstName'],
+                                    style: textFieldTitle,
+                                  ),
+                                  trailing: imageFile == null
+                                      ? SizedBox(
+                                          height: 0,
+                                          width: 0,
+                                        )
+                                      : Image.file(
+                                          File(imageFile!.path),
+                                          height: 60,
+                                          width: 60,
+                                          fit: BoxFit.fill,
                                         ),
-                                        filled: true,
-                                        contentPadding:
-                                            const EdgeInsets.all(15),
-                                        hintText: "Write a caption",
-                                        fillColor: Colors.white,
+                                ),
+                                //Content
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  child: SingleChildScrollView(
+                                    child: SizedBox(
+                                      //height: 200,
+                                      child: TextFormField(
+                                        maxLines: 30,
+                                        minLines: 2,
+                                        textInputAction:
+                                            TextInputAction.newline,
+                                        keyboardType: TextInputType.multiline,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide.none,
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                          ),
+                                          filled: true,
+                                          contentPadding:
+                                              const EdgeInsets.all(15),
+                                          hintText: "Write a caption",
+                                          fillColor: Colors.white,
+                                        ),
+                                        style: textFieldpara,
+                                        cursorColor: HexColor('#AEAEAE'),
+                                        cursorHeight: 20,
+                                        autovalidateMode:
+                                            AutovalidateMode.onUserInteraction,
+                                        validator: (value) {
+                                          if (value!.isEmpty) {
+                                            return "Please enter sentence";
+                                          }
+                                          return null;
+                                        },
+                                        controller: postDetail,
+                                        onSaved: (value) {
+                                          postDetail.text = value!;
+                                        },
                                       ),
-                                      style: textFieldpara,
-                                      cursorColor: HexColor('#AEAEAE'),
-                                      cursorHeight: 20,
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () async {
+                                    Map<Permission, PermissionStatus> status =
+                                        await [
+                                      Permission.storage,
+                                      Permission.camera,
+                                      Permission.photos,
+                                    ].request();
+                                    if (status[Permission.camera]!.isGranted) {
+                                      showImagePicker(context);
+                                    } else {
+                                      print("No permission provider");
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 20),
+                                    child: SizedBox(
+                                        width: 200,
+                                        child: Text(
+                                          'Add Image',
+                                          style: TextStyle(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              color: black),
+                                        )),
+                                  ),
+                                ),
+                                sBoxH10,
+                              ],
+                            ),
+                          ),
+                        ),
+                        sBoxH20,
+                        Padding(
+                          padding: hpad4,
+                          child: Row(
+                            children: [
+                              Text(
+                                'Tags',
+                                style: textFieldTitle,
+                              ),
+                              Text(
+                                '*',
+                                style: TextStyle(color: red, fontSize: 24),
+                              ),
+                            ],
+                          ),
+                        ),
+                        sBoxH20,
+                        //Tags
+                        SizedBox(
+                          height: 40,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: values.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: SizedBox(
+                                  child: OutlinedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          selected = index;
+                                          print(selected);
+                                        });
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: HexColor('#FEED5F'),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30)),
+                                        backgroundColor: selected == index
+                                            ? HexColor('#FEED5F')
+                                            : white,
+                                        side: BorderSide(
+                                            color: HexColor('#FEED5F')),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          CachedNetworkImage(
+                                            imageUrl: image[index],
+                                            height: 20,
+                                          ),
+                                          sBoxW5,
+                                          Text(
+                                            tags[index],
+                                            style: textFieldpara,
+                                          )
+                                        ],
+                                      )),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        sBoxH20,
+                        Padding(
+                          padding: hpad4,
+                          child: Row(
+                            children: [
+                              Text(
+                                'Contact',
+                                style: textFieldTitle,
+                              ),
+                              Text(
+                                '*',
+                                style: TextStyle(color: red, fontSize: 24),
+                              ),
+                            ],
+                          ),
+                        ),
+                        sBoxH10,
+                        Padding(
+                          padding: hpad12,
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              hintText: "Mobile",
+                            ),
+                            controller: contact,
+                            keyboardType: TextInputType.number,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return ("Contact number is required");
+                              }
+                              if (value.length < 10) {
+                                return ("Mobile Number must be of 10 digit");
+                              }
+                              return null;
+                            },
+                            cursorColor: HexColor('#AEAEAE'),
+                            onSaved: (value) {
+                              contact.text = value!;
+                            },
+                          ),
+                        ),
+                        selected == 2
+                            ? Padding(
+                                padding: hpad12,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    sBoxH20,
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Volunteers',
+                                          style: textFieldTitle,
+                                        ),
+                                        Text(
+                                          '*',
+                                          style: TextStyle(
+                                              color: red, fontSize: 24),
+                                        ),
+                                      ],
+                                    ),
+                                    sBoxH10,
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        hintText: "Enter number",
+                                      ),
+                                      controller: volunteersNeeded,
+                                      keyboardType: TextInputType.number,
                                       autovalidateMode:
                                           AutovalidateMode.onUserInteraction,
                                       validator: (value) {
                                         if (value!.isEmpty) {
-                                          return "Please enter sentence";
+                                          return ("volunteer required");
                                         }
                                         return null;
                                       },
-                                      controller: postDetail,
+                                      cursorColor: HexColor('#AEAEAE'),
                                       onSaved: (value) {
-                                        postDetail.text = value!;
+                                        volunteersNeeded.text = value!;
                                       },
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ),
-                              GestureDetector(
-                                onTap: () async {
-                                  Map<Permission, PermissionStatus> status =
-                                      await [
-                                    Permission.storage,
-                                    Permission.camera,
-                                    Permission.photos,
-                                  ].request();
-                                  if (status[Permission.camera]!.isGranted) {
-                                    showImagePicker(context);
-                                  } else {
-                                    print("No permission provider");
-                                  }
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 20),
-                                  child: SizedBox(
-                                      width: 200,
-                                      child: Text(
-                                        'Add Image',
-                                        style: TextStyle(
-                                            decoration:
-                                                TextDecoration.underline,
-                                            color: black),
-                                      )),
-                                ),
-                              ),
-                              sBoxH10,
-                            ],
-                          ),
-                        ),
-                      ),
-                      sBoxH20,
-                      Padding(
-                        padding: hpad4,
-                        child: Row(
-                          children: [
-                            Text(
-                              'Tags',
-                              style: textFieldTitle,
-                            ),
-                            Text(
-                              '*',
-                              style: TextStyle(color: red, fontSize: 24),
-                            ),
-                          ],
-                        ),
-                      ),
-                      sBoxH20,
-                      //Tags
-                      SizedBox(
-                        height: 40,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: values.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: SizedBox(
-                                child: OutlinedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        values[index] = !values[index];
-                                        postTag.update(
-                                            postTag.keys.toList()[index],
-                                            (value) => values[index]);
-                                        if (kDebugMode) {
-                                          print(postTag);
-                                        }
-                                      });
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: HexColor('#FEED5F'),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(30)),
-                                      backgroundColor: values[index] == true
-                                          ? HexColor('#FEED5F')
-                                          : white,
-                                      side: BorderSide(
-                                          color: HexColor('#FEED5F')),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        CachedNetworkImage(
-                                          imageUrl: image[index],
-                                          height: 20,
-                                        ),
-                                        sBoxW5,
-                                        Text(
-                                          tags[index],
-                                          style: textFieldpara,
-                                        )
-                                      ],
-                                    )),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      sBoxH20,
-                      Padding(
-                        padding: hpad4,
-                        child: Row(
-                          children: [
-                            Text(
-                              'Contact',
-                              style: textFieldTitle,
-                            ),
-                            Text(
-                              '*',
-                              style: TextStyle(color: red, fontSize: 24),
-                            ),
-                          ],
-                        ),
-                      ),
-                      sBoxH10,
-                      Padding(
-                        padding: hpad12,
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            hintText: "Mobile",
-                          ),
-                          controller: contact,
-                          keyboardType: TextInputType.number,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return ("Contact number is required");
-                            }
-                            if (value.length < 10) {
-                              return ("Mobile Number must be of 10 digit");
-                            }
-                            return null;
-                          },
-                          cursorColor: HexColor('#AEAEAE'),
-                          onSaved: (value) {
-                            contact.text = value!;
-                          },
-                        ),
-                      ),
-                      postTag['volunteer'] == true
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                sBoxH20,
-                                Text(
-                                  'Volunteers',
-                                  style: textFieldTitle,
-                                ),
-                                sBoxH10,
-                                TextFormField(
-                                  decoration: InputDecoration(
-                                    hintText: "10",
-                                  ),
-                                  controller: volunteersNeeded,
-                                  keyboardType: TextInputType.number,
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return ("volunteer required");
-                                    }
-                                    return null;
-                                  },
-                                  cursorColor: HexColor('#AEAEAE'),
-                                  onSaved: (value) {
-                                    volunteersNeeded.text = value!;
-                                  },
-                                ),
-                              ],
-                            )
-                          : SizedBox(),
-                    ],
-                  );
-                }),
+                              )
+                            : SizedBox(),
+                      ],
+                    );
+                  }),
+            ),
           ),
         ),
       ),
@@ -487,7 +503,8 @@ class _PostFormState extends State<PostForm> {
           postDetail.toString().trim() != " " &&
           contact.text.isNotEmpty &&
           imageFile!.path.isNotEmpty &&
-          volunteersNeeded.text.isNotEmpty) {
+          volunteersNeeded.text.isNotEmpty &&
+          key.currentState!.validate()) {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => HomePage()));
         String photoUrl = await StorageMethods()
@@ -497,7 +514,7 @@ class _PostFormState extends State<PostForm> {
           "contact": contact.text.toString(),
           "name": user.data()!["firstName"],
           "uid": uid.toString(),
-          "tag": updated.toString().trim(),
+          "tag": tags[selected],
           "date": date.toString(),
           "volunteer": volunteersNeeded.text.toString(),
           "time": time.toString(),
@@ -510,7 +527,8 @@ class _PostFormState extends State<PostForm> {
     } else if (postDetail.toString().isNotEmpty &&
         postDetail.toString().trim() != " " &&
         contact.text.isNotEmpty &&
-        imageFile!.path.isNotEmpty) {
+        imageFile!.path.isNotEmpty &&
+        key.currentState!.validate()) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => HomePage()));
       String photoUrl = await StorageMethods()
@@ -520,7 +538,7 @@ class _PostFormState extends State<PostForm> {
         "contact": contact.text.toString(),
         "name": user.data()!["firstName"],
         "uid": uid.toString(),
-        "tag": updated.toString().trim(),
+        "tag": tags[selected],
         "date": date.toString(),
         "time": time.toString(),
         "timestamp": FieldValue.serverTimestamp(),
