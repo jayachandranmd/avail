@@ -9,7 +9,7 @@ import '../../utils/constants.dart';
 import '../../utils/textstyle.dart';
 
 class HomeFeed extends StatefulWidget {
-  String postTag;
+  final String postTag;
   HomeFeed({super.key, required this.postTag});
 
   @override
