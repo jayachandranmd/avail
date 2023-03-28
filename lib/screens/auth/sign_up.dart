@@ -300,23 +300,6 @@ class _SignUpState extends State<SignUp> {
                   style: textFieldpara,
                 ),
               ),
-              CheckboxListTile(
-                value: terms,
-                checkboxShape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-                controlAffinity: ListTileControlAffinity.leading,
-                onChanged: (value) {
-                  setState(() {
-                    terms = value!;
-                  });
-                },
-                activeColor: Colors.black,
-                side: BorderSide(color: black),
-                title: Text(
-                  'I accept terms and conditions ',
-                  style: textFieldpara,
-                ),
-              ),
               sBoxH10,
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
