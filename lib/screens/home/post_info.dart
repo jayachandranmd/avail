@@ -122,8 +122,49 @@ class _PostInfoState extends State<PostInfo> {
                     thickness: 1,
                   ),
                   sBoxH10,
+                  snapshot.data['tag'].toString() == '(volunteer)'
+                      ? Padding(
+                          padding: hpad20,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Volunteers",
+                                style: textFieldTitle,
+                              ),
+                              sBoxH10,
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: yellow, width: 2),
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: HexColor('fffdef')),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      snapshot.data['volunteer'],
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w400,
+                                          color: black),
+                                    ),
+                                    Icon(
+                                      Icons.people,
+                                      size: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              sBoxH20,
+                            ],
+                          ),
+                        )
+                      : SizedBox(),
                   Padding(
-                    padding: EdgeInsets.only(left: 20),
+                    padding: hpad20,
                     child: Text(
                       'Location',
                       style: textFieldTitle,
@@ -131,7 +172,7 @@ class _PostInfoState extends State<PostInfo> {
                   ),
                   sBoxH20,
                   Padding(
-                    padding: EdgeInsets.only(left: 20, right: 20),
+                    padding: hpad20,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -226,7 +267,32 @@ class _PostInfoState extends State<PostInfo> {
                     ),
                   ),
                   sBoxH10,
-                  sBoxH5,
+                  sBoxH10,
+                  snapshot.data['tag'].toString() == '(volunteer)'
+                      ? Padding(
+                          padding: hpad20,
+                          child: InkWell(
+                            onTap: () {},
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(50),
+                                  color: yellow),
+                              child: Center(
+                                child: Text(
+                                  textAlign: TextAlign.center,
+                                  'Apply',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: black),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
                 ],
               );
             }),
