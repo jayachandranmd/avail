@@ -11,11 +11,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../utils/colors.dart';
+import '../utils/image_picker.dart';
+import '../utils/storage_methods.dart';
+import 'home/homepage.dart';
 
 class PostForm extends StatefulWidget {
   PostForm({Key? key}) : super(key: key);
@@ -351,37 +355,34 @@ class _PostFormState extends State<PostForm> {
     );
   }
 
-  final picker = ImagePicker();
-
   void showImagePicker(BuildContext context) {
-    _imgFromGallery() async {
-      try {
-        final image =
-            await ImagePicker().pickImage(source: ImageSource.gallery);
-        if (image == null) return;
-
-        final tempImage = File(image.path);
+    void cropImage(filePath) async {
+      File? croppedFile = (await ImageCropper().cropImage(
+        sourcePath: filePath,
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+          CropAspectRatioPreset.ratio3x2,
+          CropAspectRatioPreset.original,
+          CropAspectRatioPreset.ratio4x3,
+          CropAspectRatioPreset.ratio16x9
+        ],
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: HexColor('#ED7524'),
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+      ));
+      if (croppedFile != null) {
         setState(() {
-          this.imageFile = tempImage;
+          imageFile = croppedFile;
         });
-      } on PlatformException catch (e) {
-        print('Failed to pick image $e');
       }
     }
 
-    _imgFromCamera() async {
-      try {
-        final image = await ImagePicker()
-            .pickImage(source: ImageSource.camera, imageQuality: 100);
-        if (image == null) return;
-
-        final tempImage = File(image.path);
-        setState(() {
-          this.imageFile = tempImage;
-        });
-      } on PlatformException catch (e) {
-        print('Failed to pick image $e');
-      }
+    selectImage(ImageSource imageSource) async {
+      final img = await pickImage(imageSource);
+      cropImage(img!.path);
     }
 
     showBottomSheet(
@@ -412,7 +413,7 @@ class _PostFormState extends State<PostForm> {
                       ],
                     ),
                     onTap: () {
-                      _imgFromGallery();
+                      selectImage(ImageSource.gallery);
                       Navigator.pop(context);
                     },
                   )),
@@ -435,7 +436,7 @@ class _PostFormState extends State<PostForm> {
                       ),
                     ),
                     onTap: () {
-                      _imgFromCamera();
+                      selectImage(ImageSource.camera);
                       Navigator.pop(context);
                     },
                   )),
@@ -449,24 +450,27 @@ class _PostFormState extends State<PostForm> {
   void postFeed() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final user = await _firestore.collection("users").doc(uid).get();
+    final postDocIdRef = _firestore.collection('feeds').doc();
     if (postDetail.toString().isNotEmpty &&
         postDetail.toString().trim() != " " &&
-        contact.text.isNotEmpty) {
-      await _firestore.collection("feeds").add({
+        contact.text.isNotEmpty &&
+        imageFile!.path.isNotEmpty) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
+      String photoUrl = await StorageMethods()
+          .uploadPostImageToStroage('postPics', imageFile!, postDocIdRef.id);
+      await _firestore.collection('feeds').doc(postDocIdRef.id).set({
         "content": postDetail.text.toString(),
         "contact": contact.text.toString(),
         "name": user.data()!["firstName"],
-        "photoUrl": user.data()!["photoUrl"],
-        "volunteerStatus": postTag['Volunteering'],
-        "clothes": postTag['Clothes'],
-        "food": postTag['Food'],
+        "uid": uid.toString(),
         "date": date.toString(),
         "time": time.toString(),
-        "timestamp": FieldValue.serverTimestamp()
+        "timestamp": FieldValue.serverTimestamp(),
+        'photoUrl': photoUrl.toString()
       });
+
       Fluttertoast.showToast(msg: "Post added");
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => MainHomePage()));
     } else {
       Fluttertoast.showToast(msg: "Please fill the content");
     }
