@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:avail_itech_hackfest/utils/textstyle.dart';
+import 'package:avail_itech_hackfest/widgets/textformfield.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -323,27 +324,23 @@ class _PostFormState extends State<PostForm> {
                       sBoxH10,
                       Padding(
                         padding: hpad12,
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            hintText: "Mobile",
-                          ),
-                          controller: contact,
-                          keyboardType: TextInputType.number,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) {
+                        child: TextFieldInput(
+                          textEditingController: contact,
+                          keyboard: TextInputType.number,
+                          hintText:'Mobile',
+                          validate: (value) {
                             if (value!.isEmpty) {
                               return ("Contact number is required");
                             }
-                            if (value.length < 10) {
+                            if (value.length < 10||value.length>10) {
                               return ("Mobile Number must be of 10 digit");
                             }
                             return null;
                           },
-                          cursorColor: HexColor('#AEAEAE'),
-                          onSaved: (value) {
+                          save: (value) {
                             contact.text = value!;
                           },
-                        ),
+                        )
                       ),
                       postTag['volunteer'] == true
                           ? Column(
@@ -355,25 +352,24 @@ class _PostFormState extends State<PostForm> {
                                   style: textFieldTitle,
                                 ),
                                 sBoxH10,
-                                TextFormField(
-                                  decoration: InputDecoration(
-                                    hintText: "10",
-                                  ),
-                                  controller: volunteersNeeded,
-                                  keyboardType: TextInputType.number,
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  validator: (value) {
+                                TextFieldInput(
+                                  textEditingController: volunteersNeeded,
+                                  keyboard: TextInputType.number,
+                                  hintText: 'Enter number',
+
+                                  validate: (value) {
                                     if (value!.isEmpty) {
                                       return ("volunteer required");
                                     }
+                                    if(value.lenght >= 100){
+                                      return ("Limit exceeded");
+                                    }
                                     return null;
                                   },
-                                  cursorColor: HexColor('#AEAEAE'),
-                                  onSaved: (value) {
+                                  save: (value) {
                                     volunteersNeeded.text = value!;
                                   },
-                                ),
+                                )
                               ],
                             )
                           : SizedBox(),
