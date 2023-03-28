@@ -28,7 +28,7 @@ class _HomeFeedState extends State<HomeFeed> {
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (!snapshot.hasData) {
               return const Center(
-                  child: LinearProgressIndicator(color: Colors.black));
+                  child: CircularProgressIndicator(color: Colors.yellow));
             }
             // ignore: sized_box_for_whitespace
             return ListView.builder(
@@ -85,7 +85,20 @@ class _HomeFeedState extends State<HomeFeed> {
                                 sBoxH10,
                                 Padding(
                                   padding: const EdgeInsets.only(left: 20),
-                                  child: Image.asset('assets/images/image.png'),
+                                  child: CachedNetworkImage(
+                                    imageUrl: snapshot.data.docs[index]
+                                        ['photoUrl'],
+                                    progressIndicatorBuilder:
+                                        (context, url, downloadProgress) =>
+                                            Center(
+                                      child: Container(
+                                          margin: EdgeInsets.only(
+                                              top: 100, bottom: 100),
+                                          child: CircularProgressIndicator(
+                                              value: downloadProgress.progress,
+                                              color: Colors.yellow)),
+                                    ),
+                                  ),
                                 ),
                                 sBoxH10,
                                 Padding(

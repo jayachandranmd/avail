@@ -99,9 +99,10 @@ class _PostInfoState extends State<PostInfo> {
                   ),
                   sBoxH10,
                   Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    child: Image.asset('assets/images/image.png'),
-                  ),
+                      padding: const EdgeInsets.only(left: 20, right: 20),
+                      child: CachedNetworkImage(
+                        imageUrl: snapshot.data['photoUrl'],
+                      )),
                   sBoxH10,
                   Padding(
                     padding: EdgeInsets.only(left: 20, right: 20),
@@ -209,7 +210,7 @@ class _PostInfoState extends State<PostInfo> {
                           onTap: () async {
                             var mobile = snapshot.data['contact'];
                             final Uri whatsapp =
-                                Uri.parse('whatsapp://send?phone=$mobile');
+                                Uri.parse('whatsapp://send?phone=+91$mobile');
                             launchUrl(whatsapp);
                           },
                           child: Container(
