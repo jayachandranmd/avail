@@ -39,7 +39,6 @@ class _LoginState extends State<Login> {
         child: Padding(
           padding: hpad12 + hpad12 + vpad12 + vpad8,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -59,7 +58,6 @@ class _LoginState extends State<Login> {
               Form(
                 key: key,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -122,10 +120,22 @@ class _LoginState extends State<Login> {
                         },
                       ),
                     ),
-                  ],
+                    InkWell(onTap: (){
+                      AuthMethods().forgotpassword(email: emailcontroller.text.trim());
+                    },
+                      child: Text("Forgot Password",
+                      style: TextStyle(
+                          color: black,
+                          decoration: TextDecoration.underline
+                      ),
+                      ),
+                    ),
+
+                  ]
                 ),
               ),
-              sBoxH20,
+              sBoxH60,
+              sBoxH10,
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -157,37 +167,8 @@ class _LoginState extends State<Login> {
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                 ),
               ),
-              sBoxH30,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    child: Divider(
-                      thickness: 2,
-                      color: darkgrey,
-                    ),
-                  ),
-                  Text(
-                    'or',
-                    style: TextStyle(color: darkgrey),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    child: Divider(
-                      thickness: 2,
-                      color: darkgrey,
-                    ),
-                  ),
-                ],
-              ),
+              sBoxH60,
               sBoxH20,
-              Center(
-                  child: CachedNetworkImage(
-                imageUrl:
-                    'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/google.png?alt=media&token=45833eae-dad9-452a-aef1-70bb08cea00d',
-                height: 40,
-              )),
               sBoxH30,
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
