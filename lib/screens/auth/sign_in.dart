@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../widgets/textformfield.dart';
 import '../home/homepage.dart';
+import 'forgot_page.dart';
 import 'sign_up.dart';
 
 class Login extends StatefulWidget {
@@ -121,7 +122,12 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     InkWell(onTap: (){
-                      AuthMethods().forgotpassword(email: emailcontroller.text.trim());
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPage(),
+                          ),
+                      );
                     },
                       child: Text("Forgot Password",
                       style: TextStyle(
