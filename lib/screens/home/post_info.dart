@@ -73,22 +73,36 @@ class _PostInfoState extends State<PostInfo> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   sBoxH20,
-                  ListTile(
-                    leading: CircleAvatar(
-                      radius: 25,
-                      backgroundImage:
-                          CachedNetworkImageProvider(snapshot.data['photoUrl']),
-                    ),
-                    title: Text(
-                      snapshot.data['name'],
-                      style: username,
-                    ),
+                  StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(snapshot.data['uid'])
+                        .snapshots(),
+                    builder: (BuildContext context, AsyncSnapshot snapshot2) {
+                      if (!snapshot2.hasData) {
+                        return const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.black));
+                      }
+                      return ListTile(
+                        leading: CircleAvatar(
+                          radius: 25,
+                          backgroundImage: CachedNetworkImageProvider(
+                              snapshot2.data['photoUrl']),
+                        ),
+                        title: Text(
+                          snapshot.data['name'],
+                          style: username,
+                        ),
+                      );
+                    },
                   ),
                   sBoxH10,
                   Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    child: Image.asset('assets/images/image.png'),
-                  ),
+                      padding: const EdgeInsets.only(left: 20, right: 20),
+                      child: CachedNetworkImage(
+                        imageUrl: snapshot.data['photoUrl'],
+                      )),
                   sBoxH10,
                   Padding(
                     padding: EdgeInsets.only(left: 20, right: 20),
@@ -109,8 +123,49 @@ class _PostInfoState extends State<PostInfo> {
                     thickness: 1,
                   ),
                   sBoxH10,
+                  snapshot.data['tag'].toString() == '(volunteer)'
+                      ? Padding(
+                          padding: hpad20,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Volunteers",
+                                style: textFieldTitle,
+                              ),
+                              sBoxH10,
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: yellow, width: 2),
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: HexColor('fffdef')),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      snapshot.data['volunteer'],
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w400,
+                                          color: black),
+                                    ),
+                                    Icon(
+                                      Icons.people,
+                                      size: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              sBoxH20,
+                            ],
+                          ),
+                        )
+                      : SizedBox(),
                   Padding(
-                    padding: EdgeInsets.only(left: 20),
+                    padding: hpad20,
                     child: Text(
                       'Location',
                       style: textFieldTitle,
@@ -118,7 +173,7 @@ class _PostInfoState extends State<PostInfo> {
                   ),
                   sBoxH20,
                   Padding(
-                    padding: EdgeInsets.only(left: 20, right: 20),
+                    padding: hpad20,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -155,7 +210,7 @@ class _PostInfoState extends State<PostInfo> {
                           onTap: () async {
                             var mobile = snapshot.data['contact'];
                             final Uri whatsapp =
-                                Uri.parse('whatsapp://send?phone=$mobile');
+                                Uri.parse('whatsapp://send?phone=+91$mobile');
                             launchUrl(whatsapp);
                           },
                           child: Container(
@@ -213,7 +268,32 @@ class _PostInfoState extends State<PostInfo> {
                     ),
                   ),
                   sBoxH10,
-                  sBoxH5,
+                  sBoxH10,
+                  snapshot.data['tag'].toString() == '(volunteer)'
+                      ? Padding(
+                          padding: hpad20,
+                          child: InkWell(
+                            onTap: () {},
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(50),
+                                  color: yellow),
+                              child: Center(
+                                child: Text(
+                                  textAlign: TextAlign.center,
+                                  'Apply',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: black),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
                 ],
               );
             }),

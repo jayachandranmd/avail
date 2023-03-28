@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:avail_itech_hackfest/screens/home/mainhomepage.dart';
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:avail_itech_hackfest/utils/textstyle.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,14 +7,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../utils/colors.dart';
+import '../utils/image_picker.dart';
+import '../utils/storage_methods.dart';
+import 'home/homepage.dart';
 
 class PostForm extends StatefulWidget {
   PostForm({Key? key}) : super(key: key);
@@ -33,6 +35,7 @@ class _PostFormState extends State<PostForm> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController postDetail = TextEditingController();
   final TextEditingController contact = TextEditingController();
+  final TextEditingController volunteersNeeded = TextEditingController();
   List<bool> values = [false, false, false];
   List tags = ['Clothes', 'Food', 'Volunteering'];
   List image = [
@@ -41,9 +44,9 @@ class _PostFormState extends State<PostForm> {
     'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/clothes_Tag.png?alt=media&token=09e3f3d0-012c-4fb8-92e7-5a739f56fcea'
   ];
   Map<String, bool> postTag = {
-    'Clothes': false,
-    'Food': false,
-    'Volunteering': false,
+    'clothes': false,
+    'food': false,
+    'volunteer': false,
   };
   var updated;
 
@@ -136,6 +139,7 @@ class _PostFormState extends State<PostForm> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              sBoxH10, sBoxH5,
                               ListTile(
                                 leading: CircleAvatar(
                                   radius: 30,
@@ -145,10 +149,6 @@ class _PostFormState extends State<PostForm> {
                                 title: Text(
                                   snapshot.data['firstName'],
                                   style: textFieldTitle,
-                                ),
-                                subtitle: const Text(
-                                  'username',
-                                  style: TextStyle(fontSize: 18),
                                 ),
                                 trailing: imageFile == null
                                     ? SizedBox(
@@ -321,27 +321,62 @@ class _PostFormState extends State<PostForm> {
                         ),
                       ),
                       sBoxH10,
-                      TextFormField(
-                        decoration: InputDecoration(
-                          hintText: "Mobile",
+                      Padding(
+                        padding: hpad12,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            hintText: "Mobile",
+                          ),
+                          controller: contact,
+                          keyboardType: TextInputType.number,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return ("Contact number is required");
+                            }
+                            if (value.length < 10) {
+                              return ("Mobile Number must be of 10 digit");
+                            }
+                            return null;
+                          },
+                          cursorColor: HexColor('#AEAEAE'),
+                          onSaved: (value) {
+                            contact.text = value!;
+                          },
                         ),
-                        controller: contact,
-                        keyboardType: TextInputType.number,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return ("Contact number is required");
-                          }
-                          if (value.length < 10) {
-                            return ("Mobile Number must be of 10 digit");
-                          }
-                          return null;
-                        },
-                        cursorColor: HexColor('#AEAEAE'),
-                        onSaved: (value) {
-                          contact.text = value!;
-                        },
                       ),
+                      postTag['volunteer'] == true
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                sBoxH20,
+                                Text(
+                                  'Volunteers',
+                                  style: textFieldTitle,
+                                ),
+                                sBoxH10,
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                    hintText: "10",
+                                  ),
+                                  controller: volunteersNeeded,
+                                  keyboardType: TextInputType.number,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return ("volunteer required");
+                                    }
+                                    return null;
+                                  },
+                                  cursorColor: HexColor('#AEAEAE'),
+                                  onSaved: (value) {
+                                    volunteersNeeded.text = value!;
+                                  },
+                                ),
+                              ],
+                            )
+                          : SizedBox(),
                     ],
                   );
                 }),
@@ -351,37 +386,34 @@ class _PostFormState extends State<PostForm> {
     );
   }
 
-  final picker = ImagePicker();
-
   void showImagePicker(BuildContext context) {
-    _imgFromGallery() async {
-      try {
-        final image =
-            await ImagePicker().pickImage(source: ImageSource.gallery);
-        if (image == null) return;
-
-        final tempImage = File(image.path);
+    void cropImage(filePath) async {
+      File? croppedFile = (await ImageCropper().cropImage(
+        sourcePath: filePath,
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+          CropAspectRatioPreset.ratio3x2,
+          CropAspectRatioPreset.original,
+          CropAspectRatioPreset.ratio4x3,
+          CropAspectRatioPreset.ratio16x9
+        ],
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: HexColor('#ED7524'),
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+      ));
+      if (croppedFile != null) {
         setState(() {
-          this.imageFile = tempImage;
+          imageFile = croppedFile;
         });
-      } on PlatformException catch (e) {
-        print('Failed to pick image $e');
       }
     }
 
-    _imgFromCamera() async {
-      try {
-        final image = await ImagePicker()
-            .pickImage(source: ImageSource.camera, imageQuality: 100);
-        if (image == null) return;
-
-        final tempImage = File(image.path);
-        setState(() {
-          this.imageFile = tempImage;
-        });
-      } on PlatformException catch (e) {
-        print('Failed to pick image $e');
-      }
+    selectImage(ImageSource imageSource) async {
+      final img = await pickImage(imageSource);
+      cropImage(img!.path);
     }
 
     showBottomSheet(
@@ -412,7 +444,7 @@ class _PostFormState extends State<PostForm> {
                       ],
                     ),
                     onTap: () {
-                      _imgFromGallery();
+                      selectImage(ImageSource.gallery);
                       Navigator.pop(context);
                     },
                   )),
@@ -435,7 +467,7 @@ class _PostFormState extends State<PostForm> {
                       ),
                     ),
                     onTap: () {
-                      _imgFromCamera();
+                      selectImage(ImageSource.camera);
                       Navigator.pop(context);
                     },
                   )),
@@ -449,24 +481,53 @@ class _PostFormState extends State<PostForm> {
   void postFeed() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final user = await _firestore.collection("users").doc(uid).get();
-    if (postDetail.toString().isNotEmpty &&
+    final postDocIdRef = _firestore.collection('feeds').doc();
+    if (postTag['volunteer'] == true) {
+      if (postDetail.toString().isNotEmpty &&
+          postDetail.toString().trim() != " " &&
+          contact.text.isNotEmpty &&
+          imageFile!.path.isNotEmpty &&
+          volunteersNeeded.text.isNotEmpty) {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => HomePage()));
+        String photoUrl = await StorageMethods()
+            .uploadPostImageToStroage('postPics', imageFile!, postDocIdRef.id);
+        await _firestore.collection('feeds').doc(postDocIdRef.id).set({
+          "content": postDetail.text.toString(),
+          "contact": contact.text.toString(),
+          "name": user.data()!["firstName"],
+          "uid": uid.toString(),
+          "tag": updated.toString().trim(),
+          "date": date.toString(),
+          "volunteer": volunteersNeeded.text.toString(),
+          "time": time.toString(),
+          "timestamp": FieldValue.serverTimestamp(),
+          'photoUrl': photoUrl.toString()
+        });
+
+        Fluttertoast.showToast(msg: "Post added");
+      }
+    } else if (postDetail.toString().isNotEmpty &&
         postDetail.toString().trim() != " " &&
-        contact.text.isNotEmpty) {
-      await _firestore.collection("feeds").add({
+        contact.text.isNotEmpty &&
+        imageFile!.path.isNotEmpty) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
+      String photoUrl = await StorageMethods()
+          .uploadPostImageToStroage('postPics', imageFile!, postDocIdRef.id);
+      await _firestore.collection('feeds').doc(postDocIdRef.id).set({
         "content": postDetail.text.toString(),
         "contact": contact.text.toString(),
         "name": user.data()!["firstName"],
-        "photoUrl": user.data()!["photoUrl"],
-        "volunteerStatus": postTag['Volunteering'],
-        "clothes": postTag['Clothes'],
-        "food": postTag['Food'],
+        "uid": uid.toString(),
+        "tag": updated.toString().trim(),
         "date": date.toString(),
         "time": time.toString(),
         "timestamp": FieldValue.serverTimestamp(),
+        'photoUrl': photoUrl.toString()
       });
+
       Fluttertoast.showToast(msg: "Post added");
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => MainHomePage()));
     } else {
       Fluttertoast.showToast(msg: "Please fill the content");
     }

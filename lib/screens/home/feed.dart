@@ -20,15 +20,15 @@ class _HomeFeedState extends State<HomeFeed> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: StreamBuilder(
-          stream: FirebaseFirestore.instance
+      child: FutureBuilder(
+          future: FirebaseFirestore.instance
               .collection('feeds')
               .where('tag', isEqualTo: widget.postTag)
-              .snapshots(),
+              .get(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (!snapshot.hasData) {
               return const Center(
-                  child: CircularProgressIndicator(color: Colors.black));
+                  child: CircularProgressIndicator(color: Colors.yellow));
             }
             // ignore: sized_box_for_whitespace
             return ListView.builder(
@@ -56,21 +56,49 @@ class _HomeFeedState extends State<HomeFeed> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ListTile(
-                                  leading: CircleAvatar(
-                                    radius: 25,
-                                    backgroundImage: CachedNetworkImageProvider(
-                                        snapshot.data.docs[index]['photoUrl']),
-                                  ),
-                                  title: Text(
-                                    snapshot.data.docs[index]['name'],
-                                    style: username,
-                                  ),
+                                StreamBuilder(
+                                  stream: FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(snapshot.data.docs[index]['uid'])
+                                      .snapshots(),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot snapshot2) {
+                                    if (!snapshot2.hasData) {
+                                      return const Center(
+                                          child: CircularProgressIndicator(
+                                              color: Colors.black));
+                                    }
+                                    return ListTile(
+                                      leading: CircleAvatar(
+                                        radius: 25,
+                                        backgroundImage:
+                                            CachedNetworkImageProvider(
+                                                snapshot2.data['photoUrl']),
+                                      ),
+                                      title: Text(
+                                        snapshot.data.docs[index]['name'],
+                                        style: username,
+                                      ),
+                                    );
+                                  },
                                 ),
                                 sBoxH10,
                                 Padding(
                                   padding: const EdgeInsets.only(left: 20),
-                                  child: Image.asset('assets/images/image.png'),
+                                  child: CachedNetworkImage(
+                                    imageUrl: snapshot.data.docs[index]
+                                        ['photoUrl'],
+                                    progressIndicatorBuilder:
+                                        (context, url, downloadProgress) =>
+                                            Center(
+                                      child: Container(
+                                          margin: EdgeInsets.only(
+                                              top: 100, bottom: 100),
+                                          child: CircularProgressIndicator(
+                                              value: downloadProgress.progress,
+                                              color: Colors.yellow)),
+                                    ),
+                                  ),
                                 ),
                                 sBoxH10,
                                 Padding(
