@@ -462,7 +462,7 @@ class _PostFormState extends State<PostForm> {
         "food": postTag['Food'],
         "date": date.toString(),
         "time": time.toString(),
-        "timestamp": FieldValue.serverTimestamp()
+        "timestamp": FieldValue.serverTimestamp(),
       });
       Fluttertoast.showToast(msg: "Post added");
       Navigator.push(
