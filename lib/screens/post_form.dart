@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:avail_itech_hackfest/screens/home/mainhomepage.dart';
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:avail_itech_hackfest/utils/textstyle.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,7 +7,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -37,6 +35,7 @@ class _PostFormState extends State<PostForm> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController postDetail = TextEditingController();
   final TextEditingController contact = TextEditingController();
+  final TextEditingController volunteersNeeded = TextEditingController();
   List<bool> values = [false, false, false];
   List tags = ['Clothes', 'Food', 'Volunteering'];
   List image = [
@@ -45,9 +44,9 @@ class _PostFormState extends State<PostForm> {
     'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/clothes_Tag.png?alt=media&token=09e3f3d0-012c-4fb8-92e7-5a739f56fcea'
   ];
   Map<String, bool> postTag = {
-    'Clothes': false,
-    'Food': false,
-    'Volunteering': false,
+    'clothes': false,
+    'food': false,
+    'volunteer': false,
   };
   var updated;
 
@@ -140,6 +139,7 @@ class _PostFormState extends State<PostForm> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              sBoxH10, sBoxH5,
                               ListTile(
                                 leading: CircleAvatar(
                                   radius: 30,
@@ -149,10 +149,6 @@ class _PostFormState extends State<PostForm> {
                                 title: Text(
                                   snapshot.data['firstName'],
                                   style: textFieldTitle,
-                                ),
-                                subtitle: const Text(
-                                  'username',
-                                  style: TextStyle(fontSize: 18),
                                 ),
                                 trailing: imageFile == null
                                     ? SizedBox(
@@ -325,27 +321,62 @@ class _PostFormState extends State<PostForm> {
                         ),
                       ),
                       sBoxH10,
-                      TextFormField(
-                        decoration: InputDecoration(
-                          hintText: "Mobile",
+                      Padding(
+                        padding: hpad12,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            hintText: "Mobile",
+                          ),
+                          controller: contact,
+                          keyboardType: TextInputType.number,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return ("Contact number is required");
+                            }
+                            if (value.length < 10) {
+                              return ("Mobile Number must be of 10 digit");
+                            }
+                            return null;
+                          },
+                          cursorColor: HexColor('#AEAEAE'),
+                          onSaved: (value) {
+                            contact.text = value!;
+                          },
                         ),
-                        controller: contact,
-                        keyboardType: TextInputType.number,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return ("Contact number is required");
-                          }
-                          if (value.length < 10) {
-                            return ("Mobile Number must be of 10 digit");
-                          }
-                          return null;
-                        },
-                        cursorColor: HexColor('#AEAEAE'),
-                        onSaved: (value) {
-                          contact.text = value!;
-                        },
                       ),
+                      postTag['volunteer'] == true
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                sBoxH20,
+                                Text(
+                                  'Volunteers',
+                                  style: textFieldTitle,
+                                ),
+                                sBoxH10,
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                    hintText: "10",
+                                  ),
+                                  controller: volunteersNeeded,
+                                  keyboardType: TextInputType.number,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return ("volunteer required");
+                                    }
+                                    return null;
+                                  },
+                                  cursorColor: HexColor('#AEAEAE'),
+                                  onSaved: (value) {
+                                    volunteersNeeded.text = value!;
+                                  },
+                                ),
+                              ],
+                            )
+                          : SizedBox(),
                     ],
                   );
                 }),
@@ -451,7 +482,32 @@ class _PostFormState extends State<PostForm> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final user = await _firestore.collection("users").doc(uid).get();
     final postDocIdRef = _firestore.collection('feeds').doc();
-    if (postDetail.toString().isNotEmpty &&
+    if (postTag['volunteer'] == true) {
+      if (postDetail.toString().isNotEmpty &&
+          postDetail.toString().trim() != " " &&
+          contact.text.isNotEmpty &&
+          imageFile!.path.isNotEmpty &&
+          volunteersNeeded.text.isNotEmpty) {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => HomePage()));
+        String photoUrl = await StorageMethods()
+            .uploadPostImageToStroage('postPics', imageFile!, postDocIdRef.id);
+        await _firestore.collection('feeds').doc(postDocIdRef.id).set({
+          "content": postDetail.text.toString(),
+          "contact": contact.text.toString(),
+          "name": user.data()!["firstName"],
+          "uid": uid.toString(),
+          "tag": updated.toString().trim(),
+          "date": date.toString(),
+          "volunteer": volunteersNeeded.text.toString(),
+          "time": time.toString(),
+          "timestamp": FieldValue.serverTimestamp(),
+          'photoUrl': photoUrl.toString()
+        });
+
+        Fluttertoast.showToast(msg: "Post added");
+      }
+    } else if (postDetail.toString().isNotEmpty &&
         postDetail.toString().trim() != " " &&
         contact.text.isNotEmpty &&
         imageFile!.path.isNotEmpty) {
@@ -464,6 +520,7 @@ class _PostFormState extends State<PostForm> {
         "contact": contact.text.toString(),
         "name": user.data()!["firstName"],
         "uid": uid.toString(),
+        "tag": updated.toString().trim(),
         "date": date.toString(),
         "time": time.toString(),
         "timestamp": FieldValue.serverTimestamp(),
