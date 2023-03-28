@@ -18,4 +18,16 @@ class StorageMethods {
 
     return downloadUrl;
   }
+
+  Future<String> uploadPostImageToStroage(
+      String childName, File file, String postDocId) async {
+    Reference ref = _storage.ref().child(childName).child(postDocId);
+
+    UploadTask uploadTask = ref.putFile(file);
+
+    TaskSnapshot snap = await uploadTask;
+    String downloadUrl = await snap.ref.getDownloadURL();
+
+    return downloadUrl;
+  }
 }
