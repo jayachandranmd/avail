@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
                 });
               },
               colorLineSelected: black,
-              name: 'Homepage',
+              name: 'Avail    ',
               selectedStyle: selectedText,
               baseStyle: textFieldTitle),
           MainHomePage()),

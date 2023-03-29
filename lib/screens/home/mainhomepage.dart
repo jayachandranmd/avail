@@ -1,4 +1,5 @@
 import 'package:avail_itech_hackfest/screens/home/feed.dart';
+import 'package:avail_itech_hackfest/screens/home/map.dart';
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
@@ -34,6 +35,10 @@ class _MainHomePageState extends State<MainHomePage>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(onPressed: () {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => MapPage()));
+        }),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -186,9 +191,9 @@ class _MainHomePageState extends State<MainHomePage>
             ),
             Expanded(
               child: TabBarView(controller: _tabController, children: [
-                HomeFeed(postTag: '(food)'),
-                HomeFeed(postTag: '(clothes)'),
-                HomeFeed(postTag: '(volunteer)'),
+                HomeFeed(postTag: 'food'),
+                HomeFeed(postTag: 'clothes'),
+                HomeFeed(postTag: 'volunteer'),
               ]),
             )
           ],

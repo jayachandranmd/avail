@@ -181,7 +181,7 @@ class _SignUpState extends State<SignUp> {
                         }
                         // reg expression for email validation
                         if (value.length < 10||value.length>10){
-                          return ("Please enter a valid phone number")
+                          return ("Please enter a valid phone number");
                         }
                         return null;
                       },
@@ -291,23 +291,6 @@ class _SignUpState extends State<SignUp> {
                 onChanged: (value) {
                   setState(() {
                     remainder = value!;
-                  });
-                },
-                activeColor: Colors.black,
-                side: BorderSide(color: black),
-                title: Text(
-                  'I accept terms and conditions ',
-                  style: textFieldpara,
-                ),
-              ),
-              CheckboxListTile(
-                value: terms,
-                checkboxShape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-                controlAffinity: ListTileControlAffinity.leading,
-                onChanged: (value) {
-                  setState(() {
-                    terms = value!;
                   });
                 },
                 activeColor: Colors.black,
