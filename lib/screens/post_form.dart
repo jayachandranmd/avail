@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:avail_itech_hackfest/utils/textstyle.dart';
+import 'package:avail_itech_hackfest/utils/time_ago.dart';
 import 'package:avail_itech_hackfest/widgets/textformfield.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:csc_picker/csc_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +14,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../utils/colors.dart';
@@ -32,14 +33,18 @@ class _PostFormState extends State<PostForm> {
 
   File? imageFile;
   TextEditingController locationController = TextEditingController();
-  final date = DateFormat('dd/MM/yyyy').format(DateTime.now());
-  final time = DateFormat('hh:mm:ss').format(DateTime.now());
+  final date = DateTime.now();
   final uid = FirebaseAuth.instance.currentUser?.uid;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController postDetail = TextEditingController();
   final TextEditingController contact = TextEditingController();
   final TextEditingController volunteersNeeded = TextEditingController();
   final GlobalKey<FormState> key = GlobalKey<FormState>();
+  String stateValue = "";
+  String cityValue = "";
+
+  bool stateselected = false;
+  bool cityselected = false;
 
   List tags = ['clothes', 'food', 'volunteer'];
   List image = [
@@ -123,15 +128,6 @@ class _PostFormState extends State<PostForm> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         sBoxH20, sBoxH5,
-                        TextFormField(
-                          decoration: InputDecoration(
-                            hintText: "Locating...",
-                            suffixIcon: Icon(Icons.location_searching),
-                            suffixIconColor: yellow,
-                          ),
-                          controller: locationController,
-                        ),
-                        sBoxH20,
                         SizedBox(
                           //height: 400,
                           width: double.infinity,
@@ -301,6 +297,33 @@ class _PostFormState extends State<PostForm> {
                           ),
                         ),
                         sBoxH20,
+                        CSCPicker(
+                          defaultCountry: CscCountry.India,
+                          disableCountry: true,
+
+                          ///placeholders for dropdown search field
+                          countrySearchPlaceholder: "Country",
+                          stateSearchPlaceholder: "State",
+                          citySearchPlaceholder: "City",
+
+                          ///labels for dropdown
+                          stateDropdownLabel: "State",
+                          cityDropdownLabel: "City",
+                          onCountryChanged: (value) {},
+                          onStateChanged: (value) {
+                            setState(() {
+                              stateValue = value.toString();
+                              stateselected = true;
+                            });
+                          },
+                          onCityChanged: (value) {
+                            setState(() {
+                              cityValue = value.toString();
+                              cityselected = true;
+                            });
+                          },
+                        ),
+                        sBoxH20,
                         Padding(
                           padding: hpad4,
                           child: Text(
@@ -384,9 +407,10 @@ class _PostFormState extends State<PostForm> {
           CropAspectRatioPreset.ratio16x9
         ],
         androidUiSettings: AndroidUiSettings(
+            activeControlsWidgetColor: yellow,
             toolbarTitle: 'Cropper',
-            toolbarColor: HexColor('#ED7524'),
-            toolbarWidgetColor: Colors.white,
+            toolbarColor: yellow,
+            toolbarWidgetColor: Colors.black,
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: false),
       ));
@@ -468,12 +492,15 @@ class _PostFormState extends State<PostForm> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final user = await _firestore.collection("users").doc(uid).get();
     final postDocIdRef = _firestore.collection('feeds').doc();
+    String timeAgoText = timeAgo(date.toString());
     if (postTag['volunteer'] == true) {
       if (postDetail.toString().isNotEmpty &&
           postDetail.toString().trim() != " " &&
           contact.text.isNotEmpty &&
           imageFile!.path.isNotEmpty &&
           volunteersNeeded.text.isNotEmpty &&
+          cityselected == true &&
+          stateselected == true &&
           key.currentState!.validate()) {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => HomePage()));
@@ -487,9 +514,11 @@ class _PostFormState extends State<PostForm> {
           "tag": tags[selected],
           "date": date.toString(),
           "volunteer": volunteersNeeded.text.toString(),
-          "time": time.toString(),
           "timestamp": FieldValue.serverTimestamp(),
-          'photoUrl': photoUrl.toString()
+          'photoUrl': photoUrl.toString(),
+          "state": stateValue.toString(),
+          "city": cityValue.toString(),
+          "timeago": timeAgoText.toString()
         });
 
         Fluttertoast.showToast(msg: "Post added");
@@ -498,6 +527,8 @@ class _PostFormState extends State<PostForm> {
         postDetail.toString().trim() != " " &&
         contact.text.isNotEmpty &&
         imageFile!.path.isNotEmpty &&
+        cityselected == true &&
+        stateselected == true &&
         key.currentState!.validate()) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => HomePage()));
@@ -510,9 +541,11 @@ class _PostFormState extends State<PostForm> {
         "uid": uid.toString(),
         "tag": tags[selected],
         "date": date.toString(),
-        "time": time.toString(),
         "timestamp": FieldValue.serverTimestamp(),
-        'photoUrl': photoUrl.toString()
+        'photoUrl': photoUrl.toString(),
+        "state": stateValue.toString(),
+        "city": cityValue.toString(),
+        "timeago": timeAgoText.toString()
       });
 
       Fluttertoast.showToast(msg: "Post added");

@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants.dart';
 import '../../utils/textstyle.dart';
+import '../../utils/time_ago.dart';
 
 class PostInfo extends StatefulWidget {
   final String docId;
@@ -18,6 +19,36 @@ class PostInfo extends StatefulWidget {
 }
 
 class _PostInfoState extends State<PostInfo> {
+  Map<String, String> postTag = {
+    'NGO':
+        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/ngoprofiletag.png?alt=media&token=021945ea-1f27-4ba4-b0dc-776bb832a820',
+    'Individual':
+        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/individualtag.png?alt=media&token=6795a440-41bb-41fc-89a3-cc9cb1e72f6b',
+    'Hotels':
+        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/hoteltagprofile.png?alt=media&token=0b23ae71-8bb0-4f2c-a838-237ae6391a38',
+  };
+  String? timeagoText;
+  updateTimeAgo() async {
+    final col = await FirebaseFirestore.instance
+        .collection('feeds')
+        .doc(widget.docId)
+        .get();
+    setState(() {
+      timeagoText = timeAgo(col.data()!['date'].toString());
+    });
+    await FirebaseFirestore.instance
+        .collection('feeds')
+        .doc(widget.docId)
+        .update({'timeago': timeagoText.toString()});
+  }
+
+  @override
+  void initState() {
+    updateTimeAgo();
+    print(timeagoText);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -90,6 +121,30 @@ class _PostInfoState extends State<PostInfo> {
                           backgroundImage: CachedNetworkImageProvider(
                               snapshot2.data['photoUrl']),
                         ),
+                        trailing: Container(
+                          alignment: Alignment.center,
+                          width: MediaQuery.of(context).size.width / 3.7,
+                          height: 35,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              color: yellow),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CachedNetworkImage(
+                                imageUrl: postTag[snapshot2.data['userType']]
+                                    .toString(),
+                                height: 20,
+                              ),
+                              sBoxW10,
+                              Text(snapshot2.data['userType'],
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                  )),
+                            ],
+                          ),
+                        ),
                         title: Text(
                           snapshot.data['name'],
                           style: username,
@@ -105,17 +160,25 @@ class _PostInfoState extends State<PostInfo> {
                       )),
                   sBoxH10,
                   Padding(
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    child: Text(snapshot.data['content'],
-                        style: TextStyle(color: black, fontSize: 15),
-                        textScaleFactor: 1.2),
-                  ),
-                  sBoxH5,
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Text(
-                      '50 Mins ago',
-                      style: TextStyle(color: HexColor('767676')),
+                    padding: hpad8,
+                    child: ListTile(
+                      title: Text(snapshot.data['content'],
+                          style: TextStyle(color: black, fontSize: 15),
+                          textScaleFactor: 1.2),
+                      subtitle: Text(
+                        snapshot.data['timeago'],
+                        style: TextStyle(color: HexColor('767676')),
+                      ),
+                      trailing: RichText(
+                        text: TextSpan(
+                            text: snapshot.data['city'] + ', ',
+                            style: contributorText,
+                            children: [
+                              TextSpan(
+                                  text: snapshot.data['state'],
+                                  style: contributorText)
+                            ]),
+                      ),
                     ),
                   ),
                   sBoxH5,
@@ -123,7 +186,7 @@ class _PostInfoState extends State<PostInfo> {
                     thickness: 1,
                   ),
                   sBoxH10,
-                  snapshot.data['tag'].toString() == '(volunteer)'
+                  snapshot.data['tag'].toString() == 'volunteer'
                       ? Padding(
                           padding: hpad20,
                           child: Column(

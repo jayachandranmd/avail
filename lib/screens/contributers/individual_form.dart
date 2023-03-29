@@ -90,7 +90,7 @@ class _IndividualFormState extends State<IndividualForm> {
                   ],
                 ),
                 sBoxH10,
-                FormsField(
+                TextFieldInput(
                   textEditingController: name,
                   hintText: "Name",
                   validate: (value) {
@@ -115,7 +115,7 @@ class _IndividualFormState extends State<IndividualForm> {
                   ],
                 ),
                 sBoxH10,
-                FormsField(
+                TextFieldInput(
                   textEditingController: aadhar,
                   hintText: "Aadhar Number",
                   validate: (value) {
@@ -144,7 +144,7 @@ class _IndividualFormState extends State<IndividualForm> {
                   ],
                 ),
                 sBoxH10,
-                FormsField(
+                TextFieldInput(
                   textEditingController: address1,
                   hintText: "House No. / Street",
                   validate: (value) {
@@ -156,7 +156,7 @@ class _IndividualFormState extends State<IndividualForm> {
                     address1.text = value!;
                   },
                 ),
-                FormsField(
+                TextFieldInput(
                   textEditingController: address2,
                   hintText: "Locality",
                   validate: (value) {
@@ -168,7 +168,7 @@ class _IndividualFormState extends State<IndividualForm> {
                     address2.text = value!;
                   },
                 ),
-                FormsField(
+                TextFieldInput(
                   textEditingController: address3,
                   hintText: "City",
                   validate: (value) {

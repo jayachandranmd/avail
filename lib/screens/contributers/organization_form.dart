@@ -95,7 +95,7 @@ class _OrganizationFormState extends State<OrganizationForm> {
                   ],
                 ),
                 sBoxH10,
-                FormsField(
+                TextFieldInput(
                   textEditingController: tradeName,
                   hintText: "Name",
                   validate: (value) {
@@ -120,31 +120,34 @@ class _OrganizationFormState extends State<OrganizationForm> {
                   ],
                 ),
                 sBoxH10,
-                CSCPicker(
-                  defaultCountry: CscCountry.India,
-                  disableCountry: true,
+                Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: CSCPicker(
+                    defaultCountry: CscCountry.India,
+                    disableCountry: true,
 
-                  ///placeholders for dropdown search field
-                  countrySearchPlaceholder: "Country",
-                  stateSearchPlaceholder: "State",
-                  citySearchPlaceholder: "City",
+                    ///placeholders for dropdown search field
+                    countrySearchPlaceholder: "Country",
+                    stateSearchPlaceholder: "State",
+                    citySearchPlaceholder: "City",
 
-                  ///labels for dropdown
-                  stateDropdownLabel: "State",
-                  cityDropdownLabel: "City",
-                  onCountryChanged: (value) {},
-                  onStateChanged: (value) {
-                    setState(() {
-                      stateValue = value.toString();
-                      stateselected = true;
-                    });
-                  },
-                  onCityChanged: (value) {
-                    setState(() {
-                      cityValue = value.toString();
-                      cityselected = true;
-                    });
-                  },
+                    ///labels for dropdown
+                    stateDropdownLabel: "State",
+                    cityDropdownLabel: "City",
+                    onCountryChanged: (value) {},
+                    onStateChanged: (value) {
+                      setState(() {
+                        stateValue = value.toString();
+                        stateselected = true;
+                      });
+                    },
+                    onCityChanged: (value) {
+                      setState(() {
+                        cityValue = value.toString();
+                        cityselected = true;
+                      });
+                    },
+                  ),
                 ),
                 sBoxH10,
                 Row(
@@ -160,7 +163,7 @@ class _OrganizationFormState extends State<OrganizationForm> {
                   ],
                 ),
                 sBoxH10,
-                FormsField(
+                TextFieldInput(
                   textEditingController: address1,
                   hintText: "House No. / Street",
                   validate: (value) {
@@ -172,7 +175,7 @@ class _OrganizationFormState extends State<OrganizationForm> {
                     address1.text = value!;
                   },
                 ),
-                FormsField(
+                TextFieldInput(
                   textEditingController: address2,
                   hintText: "Locality",
                   validate: (value) {
@@ -184,7 +187,7 @@ class _OrganizationFormState extends State<OrganizationForm> {
                     address2.text = value!;
                   },
                 ),
-                FormsField(
+                TextFieldInput(
                   textEditingController: address3,
                   hintText: "City",
                   validate: (value) {

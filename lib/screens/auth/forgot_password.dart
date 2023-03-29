@@ -2,7 +2,6 @@ import 'package:avail_itech_hackfest/screens/auth/sign_up.dart';
 import 'package:avail_itech_hackfest/utils/auth_method.dart';
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../utils/colors.dart';
 import '../../utils/textstyle.dart';
@@ -86,7 +85,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                        primary: Colors.black,
+                        backgroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         )),

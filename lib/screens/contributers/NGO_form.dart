@@ -93,7 +93,7 @@ class _NGOFormState extends State<NGOForm> {
                     ],
                   ),
                   sBoxH10,
-                  FormsField(
+                  TextFieldInput(
                     textEditingController: ngo_name,
                     hintText: "Name",
                     validate: (value) {
@@ -119,8 +119,8 @@ class _NGOFormState extends State<NGOForm> {
                     ],
                   ),
                   sBoxH10,
-                  FormsField(
-                    textEditingController: ngo_type,
+                  TextFieldInput(
+                    textEditingController: ngo_id,
                     hintText: "NGO ID",
                     validate: (value) {
                       if (value == null || value.isEmpty) {
@@ -146,8 +146,8 @@ class _NGOFormState extends State<NGOForm> {
                     ],
                   ),
                   sBoxH10,
-                  FormsField(
-                    textEditingController: ngo_id,
+                  TextFieldInput(
+                    textEditingController: ngo_type,
                     hintText: "NGO Type",
                     validate: (value) {
                       if (value == null || value.isEmpty) {
@@ -176,6 +176,7 @@ class _NGOFormState extends State<NGOForm> {
                   CSCPicker(
                     defaultCountry: CscCountry.India,
                     disableCountry: true,
+
 
                     ///placeholders for dropdown search field
                     countrySearchPlaceholder: "Country",

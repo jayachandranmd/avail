@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:avail_itech_hackfest/screens/auth/sign_in.dart';
-import 'package:avail_itech_hackfest/screens/contributers/contributer_intro.dart';
 import 'package:avail_itech_hackfest/utils/auth_method.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,9 +41,10 @@ class _UserProfileState extends State<UserProfile> {
         CropAspectRatioPreset.ratio16x9
       ],
       androidUiSettings: AndroidUiSettings(
+          activeControlsWidgetColor: yellow,
           toolbarTitle: 'Cropper',
-          toolbarColor: HexColor('#ED7524'),
-          toolbarWidgetColor: Colors.white,
+          toolbarColor: yellow,
+          toolbarWidgetColor: Colors.black,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false),
     ));
@@ -67,7 +67,6 @@ class _UserProfileState extends State<UserProfile> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: selectImage),
       body: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection('users')
@@ -81,32 +80,45 @@ class _UserProfileState extends State<UserProfile> {
             }
             return Column(
               children: [
-                Image.asset(
-                  'assets/images/shape.png',
-                  width: double.infinity,
-                ),
-                sBoxH10,
-                Container(
-                  height: 70,
-                  width: 70,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: CachedNetworkImageProvider(
-                          snapshot.data['photoUrl'].toString(),
-                        ),
-                      )),
-                ),
                 Stack(
+                  clipBehavior: Clip.none,
                   children: [
+                    Container(
+                      height: 115.0,
+                      width: double.infinity,
+                      decoration: new BoxDecoration(
+                        color: HexColor('#FEED5F'),
+                        borderRadius: BorderRadius.vertical(
+                            bottom: Radius.elliptical(
+                                MediaQuery.of(context).size.width, 98.0)),
+                      ),
+                    ),
+                    Center(
+                      heightFactor: 2.1,
+                      child: Positioned(
+                        child: Container(
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: CachedNetworkImageProvider(
+                                  snapshot.data['photoUrl'].toString(),
+                                ),
+                              )),
+                        ),
+                      ),
+                    ),
                     Positioned(
+                      top: 130,
+                      left: 220,
                       child: Container(
                         alignment: Alignment.center,
-                        height: 30,
-                        width: 30,
+                        height: 35,
+                        width: 35,
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(40),
                             color: yellow),
                         child: InkWell(
                             onTap: selectImage, child: Icon(Icons.camera_alt)),
@@ -114,7 +126,6 @@ class _UserProfileState extends State<UserProfile> {
                     ),
                   ],
                 ),
-                sBoxH20,
                 Center(
                   child: Text(
                     snapshot.data['firstName'],
@@ -122,38 +133,30 @@ class _UserProfileState extends State<UserProfile> {
                   ),
                 ),
                 sBoxH30,
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ContributerIntro()));
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    width: MediaQuery.of(context).size.width / 3.5,
-                    height: 35,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      color: white,
-                      border: Border.all(color: yellow),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl:
-                              'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/NGO_Tag.png?alt=media&token=3a0ca98d-c0f1-423f-9a2a-89e2a552f551',
-                          height: 25,
-                        ),
-                        sBoxW10,
-                        Text(snapshot.data['userType'],
-                            style: TextStyle(
-                              fontSize: 13,
-                            )),
-                      ],
-                    ),
+                Container(
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width / 3.5,
+                  height: 35,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    color: white,
+                    border: Border.all(color: yellow),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl:
+                            'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/NGO_Tag.png?alt=media&token=3a0ca98d-c0f1-423f-9a2a-89e2a552f551',
+                        height: 25,
+                      ),
+                      sBoxW10,
+                      const Text('NGO',
+                          style: TextStyle(
+                            fontSize: 13,
+                          )),
+                    ],
                   ),
                 ),
                 sBoxH10,
@@ -167,8 +170,7 @@ class _UserProfileState extends State<UserProfile> {
                 //   ),
                 // ),
                 sBoxH20,
-
-                sBoxH5,
+                sBoxH10,
                 Divider(
                   color: lightgray,
                   thickness: 1,

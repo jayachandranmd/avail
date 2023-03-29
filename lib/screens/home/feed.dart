@@ -7,6 +7,7 @@ import 'package:hexcolor/hexcolor.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants.dart';
 import '../../utils/textstyle.dart';
+import '../../utils/time_ago.dart';
 
 class HomeFeed extends StatefulWidget {
   final String postTag;
@@ -17,14 +18,46 @@ class HomeFeed extends StatefulWidget {
 }
 
 class _HomeFeedState extends State<HomeFeed> {
+  Map<String, String> postTag = {
+    'NGO':
+        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/ngoprofiletag.png?alt=media&token=021945ea-1f27-4ba4-b0dc-776bb832a820',
+    'Individual':
+        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/individualtag.png?alt=media&token=6795a440-41bb-41fc-89a3-cc9cb1e72f6b',
+    'Hotels':
+        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/hoteltagprofile.png?alt=media&token=0b23ae71-8bb0-4f2c-a838-237ae6391a38',
+  };
+
+  String? timeagoText;
+  /*updateTimeAgo() async {
+    
+    final col = await FirebaseFirestore.instance
+        .collection('feeds')
+        .doc(widget.docId)
+        .get();
+    setState(() {
+      timeagoText = timeAgo(col.data()!['date'].toString());
+    });
+    await FirebaseFirestore.instance
+        .collection('feeds')
+        .doc(widget.docId)
+        .update({'timeago': timeagoText.toString()});
+  }
+
+  @override
+  void initState() {
+    updateTimeAgo();
+    print(timeagoText);
+    super.initState();
+  }*/
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: FutureBuilder(
-          future: FirebaseFirestore.instance
+      child: StreamBuilder(
+          stream: FirebaseFirestore.instance
               .collection('feeds')
               .where('tag', isEqualTo: widget.postTag)
-              .get(),
+              .snapshots(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (!snapshot.hasData) {
               return const Center(
@@ -75,6 +108,36 @@ class _HomeFeedState extends State<HomeFeed> {
                                             CachedNetworkImageProvider(
                                                 snapshot2.data['photoUrl']),
                                       ),
+                                      trailing: Container(
+                                        alignment: Alignment.center,
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3.7,
+                                        height: 35,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(50),
+                                            color: yellow),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            CachedNetworkImage(
+                                              imageUrl: postTag[snapshot2
+                                                      .data['userType']]
+                                                  .toString(),
+                                              height: 20,
+                                            ),
+                                            sBoxW10,
+                                            Text(snapshot2.data['userType'],
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                )),
+                                          ],
+                                        ),
+                                      ),
                                       title: Text(
                                         snapshot.data.docs[index]['name'],
                                         style: username,
@@ -102,21 +165,49 @@ class _HomeFeedState extends State<HomeFeed> {
                                 ),
                                 sBoxH10,
                                 Padding(
-                                  padding: EdgeInsets.only(left: 20),
-                                  child: Text(
-                                      snapshot.data.docs[index]['content'],
+                                  padding: hpad8,
+                                  child: ListTile(
+                                    title: Text(
+                                        snapshot.data.docs[index]['content'],
+                                        style: TextStyle(
+                                            color: black, fontSize: 15),
+                                        textScaleFactor: 1.2),
+                                    subtitle: Text(
+                                      snapshot.data.docs[index]['timeago'],
                                       style:
-                                          TextStyle(color: black, fontSize: 15),
-                                      textScaleFactor: 1.2),
-                                ),
-                                sBoxH5,
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 20),
-                                  child: Text(
-                                    '50 Mins ago',
-                                    style: TextStyle(color: HexColor('767676')),
+                                          TextStyle(color: HexColor('767676')),
+                                    ),
+                                    trailing: RichText(
+                                      text: TextSpan(
+                                          text: snapshot.data.docs[index]
+                                                  ['city'] +
+                                              ", ",
+                                          style: contributorText,
+                                          children: [
+                                            TextSpan(
+                                                text: snapshot.data.docs[index]
+                                                    ['city'],
+                                                style: contributorText)
+                                          ]),
+                                    ),
                                   ),
                                 ),
+                                // Padding(
+                                //   padding: EdgeInsets.only(left: 20),
+                                //   child: Text(
+                                //       snapshot.data.docs[index]['content'],
+                                //       style:
+                                //           TextStyle(color: black, fontSize: 15),
+                                //       textScaleFactor: 1.2),
+                                // ),
+                                // sBoxH5,
+                                // Padding(
+                                //   padding: const EdgeInsets.only(left: 20),
+                                //   child: Text(
+                                //     '50 Mins ago',
+                                //     style: TextStyle(color: HexColor('767676')),
+                                //   ),
+                                // ),
                               ],
                             ),
                           ),
