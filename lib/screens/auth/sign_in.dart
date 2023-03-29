@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../widgets/textformfield.dart';
 import '../home/homepage.dart';
+import 'forgot_password.dart';
 import 'sign_up.dart';
 
 class Login extends StatefulWidget {
@@ -58,81 +59,85 @@ class _LoginState extends State<Login> {
               Form(
                 key: key,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Email',
-                      style: textFieldTitle,
-                    ),
-                    sBoxH10,
-                    TextFieldInput(
-                      textEditingController: emailcontroller,
-                      hintText: 'someone@example.com',
-                      validate: (value) {
-                        if (value!.isEmpty) {
-                          return ("Please enter your email");
-                        }
-                        // reg expression for email validation
-                        if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
-                            .hasMatch(value)) {
-                          return ("Please enter a valid email");
-                        }
-                        return null;
-                      },
-                      save: (value) {
-                        emailcontroller.text = value!;
-                      },
-                    ),
-                    Text(
-                      'Password',
-                      style: textFieldTitle,
-                    ),
-                    sBoxH10,
-                    TextFieldInput(
-                      textEditingController: passwordcontroller,
-                      hintText: '*****',
-                      isPass: _isObscure,
-                      validate: (value) {
-                        RegExp regex = RegExp(r'^.{6,}$');
-                        if (value!.isEmpty) {
-                          return ("Password is required for login");
-                        }
-                        if (!regex.hasMatch(value)) {
-                          return ("Enter Valid Password(Min. 6 Character)");
-                        }
-                        return null;
-                      },
-                      save: (value) {
-                        passwordcontroller.text = value!;
-                      },
-                      suffixIcon: IconButton(
-                        color: Colors.white,
-                        icon: Icon(
-                          _isObscure
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: black,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isObscure = !_isObscure;
-                          });
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Email',
+                        style: textFieldTitle,
+                      ),
+                      sBoxH10,
+                      TextFieldInput(
+                        textEditingController: emailcontroller,
+                        hintText: 'someone@example.com',
+                        validate: (value) {
+                          if (value!.isEmpty) {
+                            return ("Please enter your email");
+                          }
+                          // reg expression for email validation
+                          if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+                              .hasMatch(value)) {
+                            return ("Please enter a valid email");
+                          }
+                          return null;
+                        },
+                        save: (value) {
+                          emailcontroller.text = value!;
                         },
                       ),
-                    ),
-                    InkWell(onTap: (){
-                      AuthMethods().forgotpassword(email: emailcontroller.text.trim());
-                    },
-                      child: Text("Forgot Password",
-                      style: TextStyle(
-                          color: black,
-                          decoration: TextDecoration.underline
+                      Text(
+                        'Password',
+                        style: textFieldTitle,
                       ),
+                      sBoxH10,
+                      TextFieldInput(
+                        textEditingController: passwordcontroller,
+                        hintText: '*****',
+                        isPass: _isObscure,
+                        validate: (value) {
+                          RegExp regex = RegExp(r'^.{6,}$');
+                          if (value!.isEmpty) {
+                            return ("Password is required for login");
+                          }
+                          if (!regex.hasMatch(value)) {
+                            return ("Enter Valid Password(Min. 6 Character)");
+                          }
+                          return null;
+                        },
+                        save: (value) {
+                          passwordcontroller.text = value!;
+                        },
+                        suffixIcon: IconButton(
+                          color: Colors.white,
+                          icon: Icon(
+                            _isObscure
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: black,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscure = !_isObscure;
+                            });
+                          },
+                        ),
                       ),
-                    ),
-
-                  ]
-                ),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ForgotPasswordPage(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Forgot Password",
+                          style: TextStyle(
+                              color: black,
+                              decoration: TextDecoration.underline),
+                        ),
+                      ),
+                    ]),
               ),
               sBoxH60,
               sBoxH10,

@@ -19,13 +19,13 @@ class ContributerIntro extends StatefulWidget {
 }
 
 class _ContributerIntroState extends State<ContributerIntro> {
-  List values = [false, false, false];
-  Map contribute = {
-    'NGO': false,
-    'Individual': false,
-    'Organization': false,
-  };
-  var userType;
+  List values = ["NGO", 'Individual', 'Hotels'];
+  var selected = 0;
+  // Map contribute = {
+  //   'NGO': false,
+  //   'Individual': false,
+  //   'Organization': false,
+  // };
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -51,20 +51,15 @@ class _ContributerIntroState extends State<ContributerIntro> {
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      userType = contribute.keys
-                          .where((element) => contribute[element] == true);
-                      if (kDebugMode) {
-                        print(userType.toString().trim());
-                      }
-                      if (userType.toString() == '(NGO)') {
+                      if (values[selected] == "NGO") {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) => NGOForm()));
-                      } else if (userType.toString() == '(Individual)') {
+                      } else if (values[selected] == "Individual") {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => IndividualForm()));
-                      } else if (userType.toString() == '(Organization)') {
+                      } else if (values[selected] == "Hotels") {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -77,9 +72,9 @@ class _ContributerIntroState extends State<ContributerIntro> {
                   },
                   style: ElevatedButton.styleFrom(
                       elevation: 0,
-                      backgroundColor: values[0] == true ||
-                              values[1] == true ||
-                              values[2] == true
+                      backgroundColor: values[selected] == "NGO" ||
+                              values[selected] == "Individual" ||
+                              values[selected] == "Hotels"
                           ? HexColor('#FEED5F')
                           : grey,
                       shape: RoundedRectangleBorder(
@@ -160,9 +155,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            values[0] = !values[0];
-                            contribute.update(contribute.keys.toList()[0],
-                                (value) => values[0]);
+                            selected = 0;
                           });
                         },
                         child: Stack(
@@ -171,7 +164,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
                               elevation: 2,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(100),
-                                  side: values[0] == true
+                                  side: values[selected] == "NGO"
                                       ? BorderSide(color: HexColor('#FEED5F'))
                                       : BorderSide.none),
                               child: Padding(
@@ -183,7 +176,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
                                 ),
                               ),
                             ),
-                            values[0] == true
+                            values[selected] == "NGO"
                                 ? Positioned(
                                     top: 8,
                                     right: 8,
@@ -210,9 +203,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            values[1] = !values[1];
-                            contribute.update(contribute.keys.toList()[1],
-                                (value) => values[1]);
+                            selected = 1;
                           });
                         },
                         child: Stack(
@@ -221,7 +212,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
                               elevation: 2,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(100),
-                                  side: values[1] == true
+                                  side: values[selected] == "Individual"
                                       ? BorderSide(color: HexColor('#FEED5F'))
                                       : BorderSide.none),
                               child: Padding(
@@ -233,7 +224,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
                                 ),
                               ),
                             ),
-                            values[1] == true
+                            values[selected] == "Individual"
                                 ? Positioned(
                                     top: 8,
                                     right: 8,
@@ -268,9 +259,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            values[2] = !values[2];
-                            contribute.update(contribute.keys.toList()[2],
-                                (value) => values[2]);
+                            selected = 2;
                           });
                         },
                         child: Stack(
@@ -279,7 +268,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
                               elevation: 2,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(100),
-                                  side: values[2] == true
+                                  side: values[selected] == "Hotels"
                                       ? BorderSide(color: HexColor('#FEED5F'))
                                       : BorderSide.none),
                               child: Padding(
@@ -291,7 +280,7 @@ class _ContributerIntroState extends State<ContributerIntro> {
                                 ),
                               ),
                             ),
-                            values[2] == true
+                            values[selected] == "Hotels"
                                 ? Positioned(
                                     top: 8,
                                     right: 8,
@@ -331,6 +320,6 @@ class _ContributerIntroState extends State<ContributerIntro> {
     await _firestore
         .collection("users")
         .doc(uid)
-        .update({'userType': userType.toString()});
+        .update({'userType': values[selected].toString()});
   }
 }

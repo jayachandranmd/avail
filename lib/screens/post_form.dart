@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:avail_itech_hackfest/utils/textstyle.dart';
+import 'package:avail_itech_hackfest/widgets/textformfield.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -119,6 +120,7 @@ class _PostFormState extends State<PostForm> {
                       );
                     }
                     return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         sBoxH20, sBoxH5,
                         TextFormField(
@@ -246,17 +248,9 @@ class _PostFormState extends State<PostForm> {
                         sBoxH20,
                         Padding(
                           padding: hpad4,
-                          child: Row(
-                            children: [
-                              Text(
-                                'Tags',
-                                style: textFieldTitle,
-                              ),
-                              Text(
-                                '*',
-                                style: TextStyle(color: red, fontSize: 24),
-                              ),
-                            ],
+                          child: Text(
+                            'Tags',
+                            style: textFieldTitle,
                           ),
                         ),
                         sBoxH20,
@@ -309,41 +303,28 @@ class _PostFormState extends State<PostForm> {
                         sBoxH20,
                         Padding(
                           padding: hpad4,
-                          child: Row(
-                            children: [
-                              Text(
-                                'Contact',
-                                style: textFieldTitle,
-                              ),
-                              Text(
-                                '*',
-                                style: TextStyle(color: red, fontSize: 24),
-                              ),
-                            ],
+                          child: Text(
+                            'Contact',
+                            style: textFieldTitle,
                           ),
                         ),
                         sBoxH10,
                         Padding(
                           padding: hpad12,
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              hintText: "Mobile",
-                            ),
-                            controller: contact,
-                            keyboardType: TextInputType.number,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
-                            validator: (value) {
+                          child: TextFieldInput(
+                            hintText: "Mobile",
+                            textEditingController: contact,
+                            keyboard: TextInputType.number,
+                            validate: (value) {
                               if (value!.isEmpty) {
                                 return ("Contact number is required");
                               }
-                              if (value.length < 10) {
+                              if (value.length < 10 || value.length > 10) {
                                 return ("Mobile Number must be of 10 digit");
                               }
                               return null;
                             },
-                            cursorColor: HexColor('#AEAEAE'),
-                            onSaved: (value) {
+                            save: (value) {
                               contact.text = value!;
                             },
                           ),
@@ -355,36 +336,25 @@ class _PostFormState extends State<PostForm> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     sBoxH20,
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Volunteers',
-                                          style: textFieldTitle,
-                                        ),
-                                        Text(
-                                          '*',
-                                          style: TextStyle(
-                                              color: red, fontSize: 24),
-                                        ),
-                                      ],
+                                    Text(
+                                      'Volunteers',
+                                      style: textFieldTitle,
                                     ),
                                     sBoxH10,
-                                    TextFormField(
-                                      decoration: InputDecoration(
-                                        hintText: "Enter number",
-                                      ),
-                                      controller: volunteersNeeded,
-                                      keyboardType: TextInputType.number,
-                                      autovalidateMode:
-                                          AutovalidateMode.onUserInteraction,
-                                      validator: (value) {
+                                    TextFieldInput(
+                                      hintText: "Enter number",
+                                      textEditingController: volunteersNeeded,
+                                      keyboard: TextInputType.number,
+                                      validate: (value) {
                                         if (value!.isEmpty) {
                                           return ("volunteer required");
                                         }
+                                        if (value.length > 2) {
+                                          return 'Enter a number less than 100';
+                                        }
                                         return null;
                                       },
-                                      cursorColor: HexColor('#AEAEAE'),
-                                      onSaved: (value) {
+                                      save: (value) {
                                         volunteersNeeded.text = value!;
                                       },
                                     ),

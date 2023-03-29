@@ -180,7 +180,7 @@ class _SignUpState extends State<SignUp> {
                           return ("Please enter number");
                         }
                         // reg expression for email validation
-                        if (value.length < 10) {
+                        if (value.length < 10 || value.length > 10) {
                           return ("Please enter a valid phone number");
                         }
                         return null;

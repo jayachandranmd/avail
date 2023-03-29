@@ -122,7 +122,7 @@ class _IndividualFormState extends State<IndividualForm> {
                     if (value!.isEmpty) {
                       return 'Please enter Aadhar Number';
                     }
-                    if (value.length < 16) {
+                    if (value.length < 16 || value.length > 16) {
                       return 'Please enter a valid Aadhar number (16 digits)';
                     }
                   },
