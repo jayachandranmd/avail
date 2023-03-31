@@ -1,4 +1,4 @@
-import 'package:avail_itech_hackfest/screens/auth/sign_up.dart';
+import 'package:avail_itech_hackfest/screens/contributers/contributer_intro.dart';
 import 'package:avail_itech_hackfest/utils/colors.dart';
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:avail_itech_hackfest/utils/textstyle.dart';
@@ -125,7 +125,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const SignUp()),
+                                    builder: (context) =>
+                                        const ContributerIntro()),
                                 (route) => false);
                           }
                         },

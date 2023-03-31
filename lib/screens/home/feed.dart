@@ -28,27 +28,34 @@ class _HomeFeedState extends State<HomeFeed> {
   };
 
   String? timeagoText;
-  /*updateTimeAgo() async {
-    
-    final col = await FirebaseFirestore.instance
-        .collection('feeds')
-        .doc(widget.docId)
-        .get();
-    setState(() {
-      timeagoText = timeAgo(col.data()!['date'].toString());
+  updateTimeAgo() async {
+    List<String> documentIds = [];
+    final userRef = await FirebaseFirestore.instance.collection('feeds');
+    userRef.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        documentIds.add(doc.id);
+      });
     });
-    await FirebaseFirestore.instance
-        .collection('feeds')
-        .doc(widget.docId)
-        .update({'timeago': timeagoText.toString()});
+    for (int i = 0; i < documentIds.length; i++) {
+      final col = await FirebaseFirestore.instance
+          .collection('feeds')
+          .doc(documentIds[i])
+          .get();
+      setState(() {
+        timeagoText = timeAgo(col['date'].toString());
+      });
+      await FirebaseFirestore.instance
+          .collection('feeds')
+          .doc(documentIds[i])
+          .update({'timeago': timeagoText.toString()});
+    }
   }
 
   @override
   void initState() {
     updateTimeAgo();
-    print(timeagoText);
     super.initState();
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,18 +184,29 @@ class _HomeFeedState extends State<HomeFeed> {
                                       style:
                                           TextStyle(color: HexColor('767676')),
                                     ),
-                                    trailing: RichText(
-                                      text: TextSpan(
-                                          text: snapshot.data.docs[index]
-                                                  ['city'] +
-                                              ", ",
-                                          style: contributorText,
-                                          children: [
-                                            TextSpan(
-                                                text: snapshot.data.docs[index]
-                                                    ['city'],
-                                                style: contributorText)
-                                          ]),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.location_pin),
+                                        Text(snapshot.data.docs[index]['city'],
+                                            style: TextStyle(
+                                                color: HexColor('767676'))),
+                                        // RichText(
+                                        //   text: TextSpan(
+                                        //       text:
+                                        //           snapshot.data['city'] + ", ",
+                                        //       style: TextStyle(
+                                        //           color: HexColor('767676')),
+                                        //       children: [
+                                        //         TextSpan(
+                                        //             text:
+                                        //                 snapshot.data['state'],
+                                        //             style: TextStyle(
+                                        //                 color:
+                                        //                     HexColor('767676')))
+                                        //       ]),
+                                        // ),
+                                      ],
                                     ),
                                   ),
                                 ),

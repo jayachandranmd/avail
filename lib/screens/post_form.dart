@@ -48,9 +48,9 @@ class _PostFormState extends State<PostForm> {
 
   List tags = ['clothes', 'food', 'volunteer'];
   List image = [
-    'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/clothes_Tag.png?alt=media&token=09e3f3d0-012c-4fb8-92e7-5a739f56fcea',
-    'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/clothes_Tag.png?alt=media&token=09e3f3d0-012c-4fb8-92e7-5a739f56fcea',
-    'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/clothes_Tag.png?alt=media&token=09e3f3d0-012c-4fb8-92e7-5a739f56fcea'
+    'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/clothestag.png?alt=media&token=e5688e79-adf3-4a8f-bdb5-59d6bb656af9',
+    'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/foodtag.png?alt=media&token=c8066b5e-685d-4cc0-acb8-2cd9f6b9152b',
+    'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/ngoprofiletag.png?alt=media&token=ef5c8a99-62e0-4d4d-ac4a-51acaaaf9301'
   ];
   Map<String, bool> postTag = {
     'clothes': false,
@@ -255,7 +255,10 @@ class _PostFormState extends State<PostForm> {
                           height: 40,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: values.length,
+                            itemCount:
+                                snapshot.data['userType'].toString() == "NGO"
+                                    ? values.length
+                                    : values.length - 1,
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding: const EdgeInsets.only(right: 10),
@@ -501,6 +504,7 @@ class _PostFormState extends State<PostForm> {
           volunteersNeeded.text.isNotEmpty &&
           cityselected == true &&
           stateselected == true &&
+          selected != -1 &&
           key.currentState!.validate()) {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => HomePage()));
@@ -529,6 +533,7 @@ class _PostFormState extends State<PostForm> {
         imageFile!.path.isNotEmpty &&
         cityselected == true &&
         stateselected == true &&
+        selected != -1 &&
         key.currentState!.validate()) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => HomePage()));

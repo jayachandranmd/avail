@@ -5,6 +5,7 @@ import 'package:avail_itech_hackfest/utils/textstyle.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/textformfield.dart';
 import '../home/homepage.dart';
@@ -151,6 +152,9 @@ class _LoginState extends State<Login> {
                           email: emailcontroller.text.trim(),
                           password: passwordcontroller.text.trim());
                       if (res == "success") {
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        prefs.setBool("isLoggedIn", true);
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(

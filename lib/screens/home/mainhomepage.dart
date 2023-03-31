@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../utils/colors.dart';
 import '../../utils/textstyle.dart';
@@ -18,9 +19,19 @@ class MainHomePage extends StatefulWidget {
 class _MainHomePageState extends State<MainHomePage>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
+  late bool isLoggedIn;
+  getLoginInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final showHome = prefs.getBool('isLoggedIn') ?? false;
+    setState(() {
+      isLoggedIn = showHome;
+    });
+  }
+
   @override
   void initState() {
     _tabController = new TabController(length: 3, vsync: this);
+    getLoginInfo();
     super.initState();
   }
 
@@ -75,11 +86,13 @@ class _MainHomePageState extends State<MainHomePage>
                               height: 150,
                               child: Swiper(
                                 physics: const ScrollPhysics(),
-                                autoplay: false,
+                                autoplay: true,
                                 scale: 0.7,
                                 autoplayDisableOnInteraction: true,
                                 autoplayDelay: 3000,
-                                itemCount: 5,
+                                itemCount: snapshot.data.docs.length < 5
+                                    ? snapshot.data.docs.length
+                                    : 5,
                                 itemBuilder: (BuildContext context, index) {
                                   return Card(
                                     shape: RoundedRectangleBorder(
@@ -117,7 +130,8 @@ class _MainHomePageState extends State<MainHomePage>
                                                   Icon(Icons.location_on,
                                                       color: black),
                                                   Text(
-                                                    "loaction",
+                                                    snapshot.data.docs[index]
+                                                        ['city'],
                                                     style: subtitle,
                                                   ),
                                                 ],
@@ -150,7 +164,7 @@ class _MainHomePageState extends State<MainHomePage>
                                                   clipBehavior: Clip.antiAlias,
                                                   child: CachedNetworkImage(
                                                     imageUrl:
-                                                        "https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/moneyCC.png?alt=media&token=86431e05-1598-46be-a6fd-a0769bb33c61",
+                                                        "https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/volunteerCC.png?alt=media&token=3748d8f6-20e2-44b2-aa3b-c37806fb213c",
                                                     height: 80,
                                                   )),
                                           ],

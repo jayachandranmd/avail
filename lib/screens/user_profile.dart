@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/colors.dart';
 import '../utils/constants.dart';
@@ -63,6 +64,15 @@ class _UserProfileState extends State<UserProfile> {
     print(photoUrl);
   }
 
+  Map<String, String> Tag = {
+    'NGO':
+        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/ngoprofiletag.png?alt=media&token=021945ea-1f27-4ba4-b0dc-776bb832a820',
+    'Individual':
+        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/individualtag.png?alt=media&token=6795a440-41bb-41fc-89a3-cc9cb1e72f6b',
+    'Hotels':
+        'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/hoteltagprofile.png?alt=media&token=0b23ae71-8bb0-4f2c-a838-237ae6391a38',
+  };
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -93,46 +103,60 @@ class _UserProfileState extends State<UserProfile> {
                                 MediaQuery.of(context).size.width, 98.0)),
                       ),
                     ),
-                    Center(
-                      heightFactor: 2.1,
-                      child: Positioned(
-                        child: Container(
-                          height: 100,
-                          width: 100,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: CachedNetworkImageProvider(
-                                  snapshot.data['photoUrl'].toString(),
-                                ),
-                              )),
-                        ),
-                      ),
-                    ),
                     Positioned(
-                      top: 130,
-                      left: 220,
+                      top: 70,
+                      left: 145,
                       child: Container(
-                        alignment: Alignment.center,
-                        height: 35,
-                        width: 35,
+                        height: 100,
+                        width: 100,
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(40),
-                            color: yellow),
-                        child: InkWell(
-                            onTap: selectImage, child: Icon(Icons.camera_alt)),
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: CachedNetworkImageProvider(
+                                snapshot.data['photoUrl'].toString(),
+                              ),
+                            )),
                       ),
                     ),
                   ],
                 ),
+                SizedBox(
+                  height: 50,
+                ),
+                GestureDetector(
+                  onTap: selectImage,
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: MediaQuery.of(context).size.width / 3.5,
+                    height: 35,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      color: white,
+                      border: Border.all(color: yellow),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        sBoxW10,
+                        Text('Edit Profie Pic',
+                            style: TextStyle(
+                              fontSize: 13,
+                            )),
+                      ],
+                    ),
+                  ),
+                ),
+                sBoxH30,
+
                 Center(
                   child: Text(
                     snapshot.data['firstName'],
                     style: username,
                   ),
                 ),
-                sBoxH30,
+                sBoxH10,
                 Container(
                   alignment: Alignment.center,
                   width: MediaQuery.of(context).size.width / 3.5,
@@ -147,12 +171,11 @@ class _UserProfileState extends State<UserProfile> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CachedNetworkImage(
-                        imageUrl:
-                            'https://firebasestorage.googleapis.com/v0/b/avail-38482.appspot.com/o/NGO_Tag.png?alt=media&token=3a0ca98d-c0f1-423f-9a2a-89e2a552f551',
-                        height: 25,
+                        imageUrl: Tag[snapshot.data['userType']].toString(),
+                        height: 20,
                       ),
                       sBoxW10,
-                      const Text('NGO',
+                      Text(snapshot.data['userType'],
                           style: TextStyle(
                             fontSize: 13,
                           )),
@@ -223,6 +246,9 @@ class _UserProfileState extends State<UserProfile> {
                   child: GestureDetector(
                     onTap: () async {
                       await AuthMethods().signOut();
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isLoggedIn", false);
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(

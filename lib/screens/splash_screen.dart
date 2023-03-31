@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:avail_itech_hackfest/screens/onboarding.dart';
+import 'package:avail_itech_hackfest/screens/auth/sign_up.dart';
 import 'package:avail_itech_hackfest/utils/colors.dart';
 import 'package:avail_itech_hackfest/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +15,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const OnboardingPage()),
-          (route) => false);
+      Navigator.pushAndRemoveUntil(context,
+          MaterialPageRoute(builder: (context) => SignUp()), (route) => false);
     });
     super.initState();
   }

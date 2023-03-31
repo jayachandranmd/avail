@@ -49,6 +49,8 @@ class _PostInfoState extends State<PostInfo> {
     super.initState();
   }
 
+  int vCount = 15;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -66,27 +68,6 @@ class _PostInfoState extends State<PostInfo> {
               size: 30,
               color: black,
             )),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: SizedBox(
-              width: 110,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: HexColor('#FEED5F'),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(40))),
-                child: const Text('Share',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black)),
-              ),
-            ),
-          )
-        ],
       ),
       body: SingleChildScrollView(
         child: FutureBuilder(
@@ -123,26 +104,28 @@ class _PostInfoState extends State<PostInfo> {
                         ),
                         trailing: Container(
                           alignment: Alignment.center,
-                          width: MediaQuery.of(context).size.width / 3.7,
+                          width: MediaQuery.of(context).size.width / 3.5,
                           height: 35,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(50),
                               color: yellow),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CachedNetworkImage(
-                                imageUrl: postTag[snapshot2.data['userType']]
-                                    .toString(),
-                                height: 20,
-                              ),
-                              sBoxW10,
-                              Text(snapshot2.data['userType'],
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                  )),
-                            ],
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl: postTag[snapshot2.data['userType']]
+                                      .toString(),
+                                  height: 20,
+                                ),
+                                sBoxW10,
+                                Text(snapshot2.data['userType'],
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                    )),
+                              ],
+                            ),
                           ),
                         ),
                         title: Text(
@@ -169,15 +152,22 @@ class _PostInfoState extends State<PostInfo> {
                         snapshot.data['timeago'],
                         style: TextStyle(color: HexColor('767676')),
                       ),
-                      trailing: RichText(
-                        text: TextSpan(
-                            text: snapshot.data['city'] + ', ',
-                            style: contributorText,
-                            children: [
-                              TextSpan(
-                                  text: snapshot.data['state'],
-                                  style: contributorText)
-                            ]),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.location_pin),
+                          RichText(
+                            text: TextSpan(
+                                text: snapshot.data['city'] + ", ",
+                                style: TextStyle(color: HexColor('767676')),
+                                children: [
+                                  TextSpan(
+                                      text: snapshot.data['state'],
+                                      style:
+                                          TextStyle(color: HexColor('767676')))
+                                ]),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -209,7 +199,7 @@ class _PostInfoState extends State<PostInfo> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      snapshot.data['volunteer'],
+                                      vCount.toString(),
                                       style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w400,
@@ -248,13 +238,14 @@ class _PostInfoState extends State<PostInfo> {
                             launchUrl(phoneNumber);
                           },
                           child: Container(
-                            width: 100,
-                            padding: EdgeInsets.all(10),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 35, vertical: 20),
                             decoration: BoxDecoration(
                                 border: Border.all(color: yellow, width: 2),
                                 borderRadius: BorderRadius.circular(10),
                                 color: HexColor('fffdef')),
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Icon(Icons.add_ic_call),
                                 sBoxH10,
@@ -277,8 +268,7 @@ class _PostInfoState extends State<PostInfo> {
                             launchUrl(whatsapp);
                           },
                           child: Container(
-                            width: 100,
-                            padding: EdgeInsets.all(10),
+                            padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
                                 border: Border.all(color: yellow, width: 2),
                                 borderRadius: BorderRadius.circular(10),
@@ -303,11 +293,14 @@ class _PostInfoState extends State<PostInfo> {
                         ),
                         InkWell(
                           onTap: () {
-                            commonShare(snapshot.data['content'].toString());
+                            commonShare(
+                              snapshot.data['content'].toString(),
+                              snapshot.data['contact'],
+                            );
                           },
                           child: Container(
-                            width: 100,
-                            padding: EdgeInsets.all(10),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 35, vertical: 20),
                             decoration: BoxDecoration(
                                 border: Border.all(color: yellow, width: 2),
                                 borderRadius: BorderRadius.circular(10),
@@ -332,11 +325,15 @@ class _PostInfoState extends State<PostInfo> {
                   ),
                   sBoxH10,
                   sBoxH10,
-                  snapshot.data['tag'].toString() == '(volunteer)'
+                  snapshot.data['tag'].toString() == 'volunteer'
                       ? Padding(
                           padding: hpad20,
                           child: InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              setState(() {
+                                vCount--;
+                              });
+                            },
                             child: Container(
                               width: double.infinity,
                               padding: EdgeInsets.all(15),
@@ -357,6 +354,7 @@ class _PostInfoState extends State<PostInfo> {
                           ),
                         )
                       : SizedBox(),
+                  sBoxH20
                 ],
               );
             }),
@@ -364,7 +362,8 @@ class _PostInfoState extends State<PostInfo> {
     ));
   }
 
-  void commonShare(String message) {
-    Share.share(message);
+  void commonShare(String message, String contact) {
+    Share.share(
+        "Thread from Avail\n\n" + "$message \n\n" + "Contact: $contact");
   }
 }

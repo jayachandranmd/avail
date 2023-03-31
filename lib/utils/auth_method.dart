@@ -135,9 +135,8 @@ class AuthMethods {
     await _auth.signOut();
   }
 
-  Future forgotpassword(
-      {required String email}) async{
-      await _auth.sendPasswordResetEmail(email: email);
-      Fluttertoast.showToast(msg: "Verification mail sent sucessfully");
+  Future forgotpassword({required String email}) async {
+    await _auth.sendPasswordResetEmail(email: email);
+    Fluttertoast.showToast(msg: "Verification mail sent sucessfully");
   }
 }
